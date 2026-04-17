@@ -45,7 +45,7 @@ exports.getParentDashboard = async (req, res) => {
       select: "name class section rollNumber profileImage"
     });
 
-    if (!parent) return res.status(404).json({ error: "Parent profile not found" });
+    if (!parent) return res.status(404).json({ message: "Parent profile not found" });
 
     const childrenData = [];
 
@@ -82,7 +82,7 @@ exports.getParentDashboard = async (req, res) => {
       }
     });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ message: err.message });
   }
 };
 
@@ -95,10 +95,10 @@ exports.getChildFullDetails = async (req, res) => {
     
     // Verify parent has access to this student
     const parent = await Parent.findOne({ user: req.user.id, children: studentId });
-    if (!parent) return res.status(403).json({ error: "Unauthorized access to student record" });
+    if (!parent) return res.status(403).json({ message: "Unauthorized access to student record" });
 
     const student = await Student.findById(studentId);
-    if (!student) return res.status(404).json({ error: "Student not found" });
+    if (!student) return res.status(404).json({ message: "Student not found" });
 
     const attendance = await Attendance.find({ student: studentId }).sort({ date: -1 }).limit(15);
     const marks = await Marks.find({ student: studentId }).sort({ createdAt: -1 });
@@ -118,7 +118,7 @@ exports.getChildFullDetails = async (req, res) => {
       }
     });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ message: err.message });
   }
 };
 
@@ -131,7 +131,7 @@ exports.simulateFeePayment = async (req, res) => {
     const { method, transactionId, amount } = req.body;
 
     const fee = await Fee.findById(feeId);
-    if (!fee) return res.status(404).json({ error: "Fee record not found" });
+    if (!fee) return res.status(404).json({ message: "Fee record not found" });
 
     const calc = calculateFeeWithFine(fee);
     
@@ -161,6 +161,6 @@ exports.simulateFeePayment = async (req, res) => {
 
     res.json({ success: true, message: "Payment processed", data: fee });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ message: err.message });
   }
 };

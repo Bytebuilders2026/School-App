@@ -19,7 +19,7 @@ exports.createTeacher = async (req, res) => {
     // 🔹 check employeeId
     const existingTeacher = await Teacher.findOne({ employeeId });
     if (existingTeacher) {
-      return res.status(400).json({ error: "Employee ID already exists" });
+      return res.status(400).json({ message: "Employee ID already exists" });
     }
 
     let user;
@@ -35,7 +35,7 @@ exports.createTeacher = async (req, res) => {
       if (alreadyLinked) {
         return res
           .status(400)
-          .json({ error: "Teacher already exists for this user" });
+          .json({ message: "Teacher already exists for this user" });
       }
 
       user = existingUser;
@@ -60,7 +60,7 @@ exports.createTeacher = async (req, res) => {
 
     res.json({ message: "Teacher created", teacher });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ message: err.message });
   }
 };
 
@@ -71,7 +71,7 @@ exports.getAllTeachers = async (req, res) => {
 
     res.json(teachers);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ message: err.message });
   }
 };
 
@@ -91,7 +91,7 @@ exports.deleteTeacher = async (req, res) => {
 
     res.json({ message: "Teacher deleted" });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ message: err.message });
   }
 };
 
@@ -114,7 +114,7 @@ exports.searchTeacher = async (req, res) => {
 
     res.json(teacher);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ message: err.message });
   }
 };
 
@@ -134,7 +134,7 @@ exports.updateTeacher = async (req, res) => {
 
     res.json({ message: "Updated", teacher });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ message: err.message });
   }
 };
 
@@ -161,6 +161,6 @@ exports.getTeacherDetail = async (req, res) => {
 
     res.json({ teacher, timetable });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ message: err.message });
   }
 };

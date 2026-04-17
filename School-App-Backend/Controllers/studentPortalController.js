@@ -54,7 +54,7 @@ exports.getDashboard = async (req, res) => {
       recentHomework,
     });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ message: err.message });
   }
 };
 
@@ -65,7 +65,7 @@ exports.getTimetable = async (req, res) => {
     const timetable = await Timetable.find({ class: student.class, section: student.section });
     res.json(timetable);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ message: err.message });
   }
 };
 
@@ -85,7 +85,7 @@ exports.getHomework = async (req, res) => {
 
     res.json(mappedHomework);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ message: err.message });
   }
 };
 
@@ -106,7 +106,7 @@ exports.getAttendance = async (req, res) => {
 
     res.json(studentAttendance);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ message: err.message });
   }
 };
 
@@ -121,6 +121,6 @@ exports.getMarks = async (req, res) => {
 
     res.json(results);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ message: err.message });
   }
 };

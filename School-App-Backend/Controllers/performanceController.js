@@ -62,11 +62,29 @@ const calculatePerformance = async (studentId) => {
   const marksRecords = await Marks.find({ student: studentId }).sort({ createdAt: -1 });
   let averageMarks = 0;
   let marksTrend = { direction: "up", change: "0" };
+  let weakSubjects = [];
 
   if (marksRecords.length > 0) {
     let totalObt = 0, totalPos = 0;
-    marksRecords.forEach(r => { totalObt += r.marksObtained || 0; totalPos += r.totalMarks || 100; });
+    const subjectMarks = {};
+
+    marksRecords.forEach(r => { 
+      totalObt += r.marksObtained || 0; 
+      totalPos += r.totalMarks || 100; 
+      
+      if (!subjectMarks[r.subject]) subjectMarks[r.subject] = { obt: 0, tot: 0 };
+      subjectMarks[r.subject].obt += r.marksObtained || 0;
+      subjectMarks[r.subject].tot += r.totalMarks || 100;
+    });
+    
     if (totalPos > 0) averageMarks = Math.round((totalObt / totalPos) * 100);
+
+    Object.keys(subjectMarks).forEach(subj => {
+      const perc = (subjectMarks[subj].obt / subjectMarks[subj].tot) * 100;
+      if (perc < 50) {
+         weakSubjects.push(subj);
+      }
+    });
 
     if (marksRecords.length > 1) {
       const latest = (marksRecords[0].marksObtained / marksRecords[0].totalMarks) * 100;
@@ -92,7 +110,7 @@ const calculatePerformance = async (studentId) => {
     averageMarks, marksTrend,
     homeworkPercentage, missingHomeworkCount,
     riskScore: risk.score, riskLevel: risk.level, riskReasons: risk.reasons,
-    marksRecords
+    marksRecords, weakSubjects
   };
 };
 
@@ -101,7 +119,7 @@ const calculatePerformance = async (studentId) => {
 // ═══════════════════════════════════════════════════════════════════
 
 const generateInsights = (data) => {
-  const { attendancePercentage, attendanceTrend, averageMarks, marksTrend, missingHomeworkCount } = data;
+  const { attendancePercentage, attendanceTrend, averageMarks, marksTrend, missingHomeworkCount, weakSubjects } = data;
   const insights = [];
 
   if (attendancePercentage < 75) {
@@ -111,18 +129,22 @@ const generateInsights = (data) => {
   }
 
   if (marksTrend.direction === "down" && parseFloat(marksTrend.change) > 15) {
-    insights.push(`Grades dropped by ${marksTrend.change}% in recent assessments.`);
+    insights.push(`Grades dropped by ${marksTrend.change}% in recent assessments. Evaluate weekly review methods.`);
+  }
+
+  if (weakSubjects && weakSubjects.length > 0) {
+    insights.push(`Weak Subjects Detected: ${weakSubjects.join(', ')}. Focus on foundational concepts here.`);
   }
 
   if (missingHomeworkCount > 3) {
     insights.push(`${missingHomeworkCount} missing homework assignments are affecting internal scores.`);
   }
 
-  if (averageMarks < 50) {
-    insights.push("Average academic performance is below passing standards.");
+  if (averageMarks > 0 && averageMarks < 50) {
+    insights.push("Average academic performance across all units is below passing standards. Urgent monthly check-up needed.");
   }
 
-  if (insights.length === 0) insights.push("Student is performing consistently well across all metrics.");
+  if (insights.length === 0) insights.push("Student is performing consistently well across all weekly and monthly performance metrics.");
   return insights;
 };
 
@@ -130,27 +152,34 @@ const generateInsights = (data) => {
 // Smart Suggestions Engine
 // ═══════════════════════════════════════════════════════════════════
 
-const generateSuggestions = (riskLevel) => {
-  if (riskLevel === "high") {
-    return [
-      "Attend minimum 80% classes immediately.",
-      "Revise weak subjects and past failed chapters.",
-      "Complete all pending homework today.",
-      "Schedule urgent mentor/parent meeting."
-    ];
-  } else if (riskLevel === "medium") {
-    return [
-      "Improve daily attendance consistency.",
-      "Focus more on assignments with low grades.",
-      "Submit homework directly after school."
-    ];
-  } else {
-    return [
-      "Keep up the great work!",
-      "Help peers as a study buddy.",
-      "Try advanced extra-curricular challenges."
-    ];
+const generateSuggestions = (riskLevel, weakSubjects) => {
+  let suggestions = [];
+
+  if (weakSubjects && weakSubjects.length > 0) {
+    suggestions.push(`Guidance: You are weak in ${weakSubjects.join(', ')}. Focus heavily on revisiting the last 2 units taught in these subjects.`);
+    if (weakSubjects.includes("Maths") || weakSubjects.includes("Math")) {
+      suggestions.push("For Maths: Solve 10 extra problem sets from previous monthly tests and practice theorems daily.");
+    }
+    if (weakSubjects.includes("Science")) {
+      suggestions.push("For Science: Review scientific diagrams and physics core formulas twice a week.");
+    }
   }
+
+  if (riskLevel === "high") {
+    suggestions.push("Attend minimum 80% classes immediately.");
+    suggestions.push("Complete all pending homework today to catch up on weekly syllabus.");
+    suggestions.push("Schedule urgent mentor/parent meeting to discuss monthly report.");
+  } else if (riskLevel === "medium") {
+    suggestions.push("Improve daily attendance consistency.");
+    suggestions.push("Focus more on assignments with low grades.");
+    suggestions.push("Submit homework directly after school.");
+  } else {
+    suggestions.push("Keep up the great work on monthly tests!");
+    suggestions.push("Help peers as a study buddy to reinforce your learning.");
+    suggestions.push("Try advanced extra-curricular challenges.");
+  }
+  
+  return suggestions;
 };
 
 // ═══════════════════════════════════════════════════════════════════
@@ -169,7 +198,7 @@ exports.getStudentPerformance = async (req, res) => {
 
     const perf = await calculatePerformance(studentId);
     const insights = generateInsights(perf);
-    const suggestions = generateSuggestions(perf.riskLevel);
+    const suggestions = generateSuggestions(perf.riskLevel, perf.weakSubjects);
 
     // Group marks by examType for chart
     const marksByExam = {};
@@ -180,14 +209,21 @@ exports.getStudentPerformance = async (req, res) => {
     });
     const marksTrendChart = Object.values(marksByExam).map(e => ({ name: e.name, score: Math.round(e.totalScore / e.count) }));
 
-    // Auto-notify on high risk (1-day cooldown)
-    if (perf.riskLevel === "high") {
+    // Auto-notify on high risk or weak subjects (1-day cooldown)
+    if (perf.riskLevel === "high" || (perf.weakSubjects && perf.weakSubjects.length > 0)) {
       const existing = await Notification.findOne({ recipient: studentId, type: "performance_alert", createdAt: { $gte: new Date(Date.now() - 86400000) } });
       if (!existing) {
-        await Notification.create({ recipient: studentId, recipientModel: "student", title: "⚠️ CRITICAL Performance Alert", message: `Risk: HIGH. ${perf.riskReasons.join(", ")}`, type: "performance_alert" });
+        let msg = `Risk: ${perf.riskLevel.toUpperCase()}. `;
+        if (perf.weakSubjects && perf.weakSubjects.length > 0) msg += `Weak Subjects: ${perf.weakSubjects.join(', ')}. `;
+        msg += perf.riskReasons.join(", ");
+        
+        await Notification.create({ recipient: studentId, recipientModel: "student", title: "⚠️ Performance Analysis Alert", message: msg, type: "performance_alert" });
         const st = await Student.findById(studentId);
         if (st?.parent) {
-          await Notification.create({ recipient: st.parent, recipientModel: "parent", title: "⚠️ Academic Risk Alert", message: `Your child ${st.name} is at High Risk. Please check the performance dashboard.`, type: "performance_alert" });
+          const parentMsg = perf.weakSubjects && perf.weakSubjects.length > 0 
+              ? `Your child ${st.name} requires academic guidance in: ${perf.weakSubjects.join(', ')}. Please refer to the Weekly/Monthly student AI panel.`
+              : `Your child ${st.name} is at Academic Risk. Please check the performance dashboard.`;
+          await Notification.create({ recipient: st.parent, recipientModel: "parent", title: "⚠️ Academic Performance Report", message: parentMsg, type: "performance_alert" });
         }
       }
     }
@@ -252,9 +288,9 @@ exports.askPerformanceChatbot = async (req, res) => {
       return res.json({ success: true, response: `You have ${perf.missingHomeworkCount} missing homework assignments. Completing these will boost your score.` });
     }
 
-    if (query.includes("improve") || query.includes("help") || query.includes("advice")) {
-      const s = generateSuggestions(perf.riskLevel);
-      return res.json({ success: true, response: `To improve: 1. ${s[0]} 2. ${s[1] || "Submit all pending work."} 3. Stay focused during lectures.` });
+    if (query.includes("improve") || query.includes("help") || query.includes("advice") || query.includes("weak") || query.includes("guidance")) {
+      const s = generateSuggestions(perf.riskLevel, perf.weakSubjects);
+      return res.json({ success: true, response: `AI Guidance: ${s.join(" ")} Please focus on the highlighted units.` });
     }
 
     if (query.includes("score")) {

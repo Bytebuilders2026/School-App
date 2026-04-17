@@ -12,6 +12,10 @@ export default function TeacherHomework() {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [classes, setClasses] = useState([]);
+  const [showDetails, setShowDetails] = useState(false);
+  const [selectedHw, setSelectedHw] = useState(null);
+  const [studentDetails, setStudentDetails] = useState([]);
+  const [loadingDetails, setLoadingDetails] = useState(false);
 
   // Form State
   const [form, setForm] = useState({
@@ -22,6 +26,26 @@ export default function TeacherHomework() {
     subject: "",
     dueDate: "",
   });
+
+  const fetchCompletionDetails = async (hw) => {
+    setShowDetails(true);
+    setLoadingDetails(true);
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.get(`${API}/students/search?cls=${hw.class}&section=${hw.section}`, {
+          headers: { Authorization: `Bearer ${token}` }
+      });
+      // The searchStudent API might need filtering or use getStudentsByClass
+      const studentsInClass = await axios.get(`${API}/students/by-class?cls=${hw.class}&section=${hw.section}`, {
+          headers: { Authorization: `Bearer ${token}` }
+      });
+      setStudentDetails(studentsInClass.data || []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoadingDetails(false);
+    }
+  };
 
   useEffect(() => {
     fetchHomeworks();
@@ -137,13 +161,38 @@ export default function TeacherHomework() {
                   <div className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs font-bold w-fit">
                     Class {hw.class} - {hw.section}
                   </div>
-                  <button onClick={() => handleDelete(hw._id)} className="text-red-400 hover:text-red-600 transition">
-                    <Trash2 size={18} />
-                  </button>
+                  <div className="flex gap-2">
+                    <button 
+                      onClick={() => {
+                        setSelectedHw(hw);
+                        fetchCompletionDetails(hw);
+                      }}
+                      className="text-[#89D4FF] hover:text-[#6ac0f0] transition text-xs font-bold"
+                    >
+                      View Details
+                    </button>
+                    <button onClick={() => handleDelete(hw._id)} className="text-red-400 hover:text-red-600 transition">
+                      <Trash2 size={18} />
+                    </button>
+                  </div>
                 </div>
                 <h3 className="font-bold text-gray-800 text-lg mb-1 truncate">{hw.title}</h3>
                 <p className="text-sm font-semibold text-[#89D4FF] mb-2">{hw.subject}</p>
-                <p className="text-sm text-gray-500 line-clamp-2 h-10 mb-4 text-xs">{hw.description || "No description provided."}</p>
+                <p className="text-sm text-gray-500 line-clamp-2 h-10 mb-3 text-xs">{hw.description || "No description provided."}</p>
+                
+                {/* 🔹 Completion Tracker */}
+                <div className="mb-4">
+                  <div className="flex justify-between text-[11px] font-bold text-gray-500 mb-1">
+                    <span>Completion Status</span>
+                    <span className={hw.completedCount === hw.totalStudents ? "text-green-500" : "text-amber-500"}>
+                      {hw.completedCount} / {hw.totalStudents} Submitted
+                    </span>
+                  </div>
+                  <div className="w-full bg-gray-100 rounded-full h-1.5">
+                    <div className="bg-[#89D4FF] h-full rounded-full transition-all duration-500" style={{ width: `${hw.totalStudents > 0 ? (hw.completedCount / hw.totalStudents) * 100 : 0}%` }}></div>
+                  </div>
+                </div>
+
                 <div className="flex items-center justify-between text-xs pt-4 border-t border-gray-100">
                   <span className="text-gray-400">Assigned: {new Date(hw.createdAt).toLocaleDateString()}</span>
                   <span className="font-bold text-red-500">Due: {new Date(hw.dueDate).toLocaleDateString()}</span>
@@ -153,6 +202,46 @@ export default function TeacherHomework() {
           </div>
         )}
       </div>
+
+      {/* 🔹 Detailed Completion Modal */}
+      {selectedHw && showDetails && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh]">
+            <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
+               <div>
+                <h2 className="font-bold text-gray-700">Homework Submission Details</h2>
+                <p className="text-xs text-gray-400">{selectedHw.title} ({selectedHw.subject})</p>
+               </div>
+               <button onClick={() => setShowDetails(false)} className="text-gray-400 hover:text-gray-600">✕</button>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto p-6">
+               {loadingDetails ? (
+                 <div className="flex justify-center p-10"><div className="w-8 h-8 border-4 border-[#89D4FF] border-t-transparent rounded-full animate-spin" /></div>
+               ) : (
+                 <div className="space-y-2">
+                    {studentDetails.map(st => {
+                      const isDone = selectedHw.completedBy.includes(st._id);
+                      return (
+                        <div key={st._id} className="flex items-center justify-between p-3 rounded-xl border border-gray-100 hover:bg-gray-50">
+                           <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-full bg-[#89D4FF]/10 flex items-center justify-center text-[#89D4FF] font-bold text-xs">
+                                 {st.rollNumber}
+                              </div>
+                              <span className="text-sm font-medium text-gray-700">{st.name}</span>
+                           </div>
+                           <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full ${isDone ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
+                              {isDone ? 'COMPLETED' : 'PENDING'}
+                           </span>
+                        </div>
+                      );
+                    })}
+                 </div>
+               )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {showModal && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">

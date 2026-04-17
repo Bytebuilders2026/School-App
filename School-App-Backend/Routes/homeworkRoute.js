@@ -9,13 +9,16 @@ const {
     markAsComplete
 } = require("../Controllers/homeworkController");
 
+// Apply authMiddleware to all routes
+router.use(authMiddleware);
+
 // Teacher specific routes
-router.post("/create", authMiddleware, createHomework);
-router.get("/teacher", authMiddleware, getTeacherHomework);
-router.delete("/:id", authMiddleware, deleteHomework);
-router.patch("/:id/complete", authMiddleware, markAsComplete);
+router.post("/create", createHomework);
+router.get("/teacher", getTeacherHomework);
+router.delete("/:id", deleteHomework);
+router.patch("/:id/complete", markAsComplete);
 
 // Global / Admin route
-router.get("/all", authMiddleware, getAllHomework);
+router.get("/all", getAllHomework);
 
 module.exports = router;

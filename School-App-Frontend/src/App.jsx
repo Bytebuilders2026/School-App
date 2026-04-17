@@ -15,12 +15,15 @@ import AdminParents from "./Pages/AdminPages/AdminParents";
 import AdminSyllabus from "./Pages/AdminPages/AdminSyllabus";
 import AdminDatesheet from "./Pages/AdminPages/AdminDatesheet";
 import AdminFees from "./Pages/AdminPages/AdminFees";
+import AdminTimetableAdjustments from "./Pages/AdminPages/AdminTimetableAdjustments";
+import AdminAutoTimetable from "./Pages/AdminPages/AdminAutoTimetable";
 import AdminSidebar from "./Layouts/AdminSidebar";
 
 
 // Teacher Pages
 import TeacherMarks from "./Pages/TeacherPages/TeacherMarks";
 import TeacherDocManagement from "./Pages/TeacherPages/TeacherDocManagement";
+import TeacherLeavePanel from "./Pages/TeacherPages/TeacherLeavePanel";
 
 
 // Student Routes
@@ -62,6 +65,8 @@ function App() {
         <Route path="/admin/syllabus" element={<AdminSyllabus />} />
         <Route path="/admin/datesheet" element={<AdminDatesheet />} />
         <Route path="/admin/fees" element={<AdminFees />} />
+        <Route path="/admin/timetable-adjustments" element={<AdminTimetableAdjustments />} />
+        <Route path="/admin/auto-timetable" element={<AdminAutoTimetable />} />
 
 
         {/* Teacher Routes */}
@@ -71,6 +76,7 @@ function App() {
         <Route path="/teacher/homework" element={<TeacherHomework />} />
         <Route path="/teacher/marks" element={<TeacherMarks />} />
         <Route path="/teacher/doc-requests" element={<TeacherDocManagement />} />
+        <Route path="/teacher/leave-panel" element={<TeacherLeavePanel />} />
 
 
         {/* Student Routes */}

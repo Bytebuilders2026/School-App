@@ -82,6 +82,8 @@ exports.createHomework = async (req, res) => {
 exports.getTeacherHomework = async (req, res) => {
   try {
     const teacherId = req.user?.id;
+    const Student = require("../Models/studentSchema");
+    const Notification = require("../Models/notificationSchema");
 
     const teacherProfile = await Teacher.findOne({
       $or: [{ user: teacherId }, { _id: teacherId }],
@@ -94,8 +96,57 @@ exports.getTeacherHomework = async (req, res) => {
     const homeworks = await Homework.find({ assignedBy: teacherProfile._id })
       .sort({ createdAt: -1 });
 
-    res.json({ success: true, homeworks });
+    const homeworksObj = [];
+    for (let hw of homeworks) {
+      const clsEscaped = (hw.class || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const secEscaped = (hw.section || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const totalStudents = await Student.countDocuments({
+        class: { $regex: new RegExp('^' + clsEscaped.trim() + '$', 'i') },
+        section: { $regex: new RegExp('^' + secEscaped.trim() + '$', 'i') }
+      });
+      homeworksObj.push({ ...hw.toObject(), totalStudents, completedCount: hw.completedBy.length });
+    }
+
+    // --- 3-DAY CONTINUOUS HOMEWORK MISSED CHECK ---
+    const pastHomeworks = homeworks.filter(h => new Date(h.dueDate) < new Date(new Date().setHours(23,59,59,999))).slice(0, 3);
+    if (pastHomeworks.length === 3) {
+       const latestClass = pastHomeworks[0].class;
+       const latestSec = pastHomeworks[0].section;
+       
+       if (pastHomeworks.every(h => h.class === latestClass && h.section === latestSec)) {
+          const clsEscaped = (latestClass || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          const secEscaped = (latestSec || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          const students = await Student.find({
+            class: { $regex: new RegExp('^' + clsEscaped.trim() + '$', 'i') },
+            section: { $regex: new RegExp('^' + secEscaped.trim() + '$', 'i') }
+          });
+          
+          for (let st of students) {
+             const missedAll = pastHomeworks.every(h => !h.completedBy.includes(st._id));
+             if (missedAll) {
+                const alreadyNotified = await Notification.findOne({
+                  recipient: teacherProfile.user,
+                  type: "homework_alert",
+                  message: { $regex: st.name },
+                  createdAt: { $gte: new Date(Date.now() - 86400000) } // Cooldown 1 day
+                });
+                
+                if (!alreadyNotified) {
+                   await Notification.create({
+                      recipient: teacherProfile.user, recipientModel: "User",
+                      title: "⚠️ Continuous Missing Homework Alert",
+                      message: `Student ${st.name} (Roll: ${st.rollNumber}) has missed completing the last 3 consecutive assignments in ${latestClass}-${latestSec}.`,
+                      type: "homework_alert"
+                   });
+                }
+             }
+          }
+       }
+    }
+
+    res.json({ success: true, homeworks: homeworksObj });
   } catch (err) {
+    console.error(err);
     res.status(500).json({ success: false, error: err.message });
   }
 };

@@ -14,11 +14,11 @@ exports.addStudent = async (req, res) => {
     // 🔹 check rollNumber
     const existingStudent = await Student.findOne({ rollNumber });
     if (existingStudent) {
-      return res.status(400).json({ error: "Roll Number already exists" });
+      return res.status(400).json({ message: "Roll Number already exists" });
     }
 
     if (!parentName || !parentPhone) {
-      return res.status(400).json({ error: "Parent Name and Phone are required." });
+      return res.status(400).json({ message: "Parent Name and Phone are required." });
     }
 
     // 🔹 Manage Parent Resolution
@@ -51,14 +51,14 @@ exports.addStudent = async (req, res) => {
         // 🔥 prevent duplicate profile
         const alreadyLinked = await Student.findOne({ user: existingUser._id });
         if (alreadyLinked) {
-          return res.status(400).json({ error: "Student already exists for this email" });
+          return res.status(400).json({ message: "Student already exists for this email" });
         }
         user = existingUser;
       } else {
         user = await User.create({ email, password, role: "student" });
       }
     } else {
-      return res.status(400).json({ error: "Email is required to create a user profile" });
+      return res.status(400).json({ message: "Email is required to create a user profile" });
     }
 
     // 🔹 create student profile linked to parent
@@ -77,7 +77,7 @@ exports.addStudent = async (req, res) => {
 
     res.status(201).json(student);
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    res.status(400).json({ message: err.message });
   }
 };
 
@@ -88,7 +88,7 @@ exports.getTotalStudents = async (req, res) => {
     const count = await Student.countDocuments();
     res.json({ total: count });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ message: err.message });
   }
 };
 
@@ -121,7 +121,7 @@ exports.searchStudent = async (req, res) => {
     res.json(students);
 
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ message: err.message });
   }
 };
 
@@ -132,7 +132,7 @@ exports.getStudentsByClass = async (req, res) => {
     const students = await Student.find({ class: cls, section }).sort({ rollNumber: 1 });
     res.json(students);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ message: err.message });
   }
 };
 
@@ -152,6 +152,6 @@ exports.getStudentAttendance = async (req, res) => {
 
     res.json({ total, present, absent, leave, percentage, records });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ message: err.message });
   }
 };

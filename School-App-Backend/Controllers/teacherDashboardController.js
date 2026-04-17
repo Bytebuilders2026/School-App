@@ -175,11 +175,43 @@ exports.markAttendance = async (req, res) => {
 
     await Attendance.bulkWrite(bulkOps);
 
-    // 🔹 Notify Students & Parents (Risk based)
+    // 🔹 Notify Students & Parents (Risk based) + 3-Day Absent Trigger
     const Notification = require("../Models/notificationSchema");
     const Student = require("../Models/studentSchema");
 
     for (let record of attendanceData) {
+       // --- 3-DAY CONTINUOUS ABSENCE CHECK ---
+       if (record.status === "absent") {
+          const last3Days = await Attendance.find({ student: record.studentId })
+              .sort({ date: -1 })
+              .limit(3);
+          
+          // Verify if exactly the last 3 days all have status 'absent'
+          const is3DaysAbsent = last3Days.length === 3 && last3Days.every(a => a.status === "absent");
+          
+          if (is3DaysAbsent) {
+             const stInfo = await Student.findById(record.studentId);
+             if (stInfo) {
+                const title = "🚨 3-Day Absence Alert";
+                // Notify Parent
+                if (stInfo.parent) {
+                   await Notification.create({
+                      recipient: stInfo.parent, recipientModel: "parent",
+                      title, message: `SEVERE ALERT: Your child ${stInfo.name} has been continuously ABSENT for 3 days without an official leave application. Please contact the class teacher immediately.`,
+                      type: "attendance_alert"
+                   });
+                }
+                // Notify Teacher
+                await Notification.create({
+                   recipient: teacherProfile._id, recipientModel: "teacher",
+                   title, message: `ALERT: Student ${stInfo.name} (Roll: ${stInfo.rollNumber}) has been ABSENT for 3 consecutive days without leave.`,
+                   type: "attendance_alert"
+                });
+             }
+          }
+       }
+
+       // --- STANDARD ATTENDANCE RISK ---
        if (record.status === "absent" || record.status === "leave") {
           const stAttTotal = await Attendance.countDocuments({ student: record.studentId });
           const stAttPresent = await Attendance.countDocuments({ student: record.studentId, status: "present" });

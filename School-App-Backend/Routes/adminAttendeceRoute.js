@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const authMiddleware = require("../Middleware/authMiddleware");
 
 const {
   getDashboardStats,
@@ -8,7 +9,8 @@ const {
   getAdminDashboard,
 } = require("../Controllers/adminAttendenceController");
 
-// FINAL URLS
+router.use(authMiddleware);
+
 router.get("/admin/stats", getDashboardStats);
 router.get("/admin/class-wise", getClassWiseAttendance);
 router.get("/admin/class-students", getClassStudentsAttendance);

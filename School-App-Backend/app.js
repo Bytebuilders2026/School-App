@@ -15,6 +15,7 @@ app.use("/api/auth", require("./Routes/authRoute"));
 app.use("/api/students", require("./Routes/adminStudentRoute"));
 app.use("/api/admin/teachers", teacherRoutes);
 app.use("/api/timetable", timetableRoutes);
+app.use("/api/autotimetable", require("./Routes/autoTimetableRoute"));
 app.use("/api/attendance", require("./Routes/adminAttendeceRoute"));
 app.use("/api/teacher", require("./Routes/teacherDashboardRoute"));
 app.use("/api/homework", require("./Routes/homeworkRoute"));
@@ -29,6 +30,14 @@ app.use("/api/doc-requests", require("./Routes/docRequestRoute"));
 app.use("/api/parent-portal", require("./Routes/parentPortalRoute"));
 app.use("/api/admin/fees", require("./Routes/adminFeeRoute"));
 
-
+// 🔹 Global Error Handler
+app.use((err, req, res, next) => {
+  console.error("🔥 Server Error:", err.stack);
+  res.status(err.status || 500).json({
+    success: false,
+    message: err.message || "Internal Server Error",
+    error: process.env.NODE_ENV === "development" ? err : {}
+  });
+});
 
 app.listen(5000, "0.0.0.0", () => console.log("Server running on 5000"));

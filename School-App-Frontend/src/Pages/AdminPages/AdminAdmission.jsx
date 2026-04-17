@@ -51,12 +51,9 @@ export default function AdminAdmission() {
     handleSearch(""); // Fetch recent initially
   }, []);
 
-  const baseUrl = API_BASE_URL;
-  axios.defaults.baseURL = baseUrl;
-
   const fetchTotal = () => {
     axios
-      .get(`${baseUrl}/students/total`)
+      .get(`/students/total`)
       .then((res) => setTotal(res.data.total))
       .catch((err) => console.log(err));
   };
@@ -65,9 +62,7 @@ export default function AdminAdmission() {
     setLoading(true);
     try {
       const q = typeof queryToSearch === "string" ? queryToSearch : search;
-      const res = await axios.get(
-        `${baseUrl}/students/search?query=${q}`,
-      );
+      const res = await axios.get(`/students/search?query=${q}`);
       setStudents(res.data || []);
     } catch {
       setStudents([]);
@@ -78,13 +73,13 @@ export default function AdminAdmission() {
 
   const handleAdd = async () => {
     try {
-      await axios.post(`${baseUrl}/students/add`, form);
+      await axios.post(`/students/add`, form);
       alert("Student Added successfully");
       setShowForm(false);
       fetchTotal();
       handleSearch(""); // reset to show recent
     } catch (err) {
-      alert(err.response?.data?.error || "Error adding student");
+      alert(err.response?.data?.message || err.response?.data?.error || "Error adding student");
     }
   };
 

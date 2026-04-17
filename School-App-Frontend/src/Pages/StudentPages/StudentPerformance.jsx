@@ -266,7 +266,7 @@ export default function StudentPerformance() {
                               Hi! I'm your AI advisor. Try asking:<br/>
                               • <b>"Why is my risk high?"</b><br/>
                               • <b>"How can I improve?"</b><br/>
-                              • <b>"Tell me about my attendance"</b>
+                              • <b>"Give me study guidance / weak subjects"</b>
                           </div>
                        </div>
 

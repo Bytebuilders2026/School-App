@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const authMiddleware = require("../Middleware/authMiddleware");
 
 const {
   createTeacher,
@@ -10,11 +11,11 @@ const {
   getTeacherDetail,
 } = require("../Controllers/adminTeacherController");
 
-router.post("/create", createTeacher);
-router.get("/all", getAllTeachers);
-router.get("/search", searchTeacher);
-router.delete("/delete/:id", deleteTeacher);
-router.put("/update/:id", updateTeacher);
-router.get("/detail/:id", getTeacherDetail);
+router.post("/create", authMiddleware, createTeacher);
+router.get("/all", authMiddleware, getAllTeachers);
+router.get("/search", authMiddleware, searchTeacher);
+router.delete("/delete/:id", authMiddleware, deleteTeacher);
+router.put("/update/:id", authMiddleware, updateTeacher);
+router.get("/detail/:id", authMiddleware, getTeacherDetail);
 
 module.exports = router;

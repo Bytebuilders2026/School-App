@@ -29,10 +29,7 @@ export default function TeacherAttendance() {
 
   const fetchTodayClasses = async () => {
     try {
-      const token = localStorage.getItem("token");
-      const res = await axios.get(`${API}/teacher/dashboard`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await axios.get(`/teacher/dashboard`);
       // The dashboard API returns today's timetable inside data.timetable
       const uniqueClasses = [];
       const seen = new Set();
@@ -65,7 +62,7 @@ export default function TeacherAttendance() {
     setLoading(true);
     
     try {
-      const res = await axios.get(`${API}/students/by-class?cls=${cls.class}&section=${cls.section}`);
+      const res = await axios.get(`/students/by-class?cls=${selectedClass.class}&section=${selectedClass.section}`);
       const fetchedStudents = res.data || [];
       setStudents(fetchedStudents);
       
@@ -106,9 +103,7 @@ export default function TeacherAttendance() {
         }))
       };
 
-      await axios.post(`${API}/teacher/attendance`, payload, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await axios.post(`/teacher/attendance`, payload);
       
       alert("Attendance submitted successfully!");
       setSelectedClass(null); // Go back to classes list
