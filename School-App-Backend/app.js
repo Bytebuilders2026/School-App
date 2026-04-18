@@ -9,7 +9,17 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-mongoose.connect("mongodb://127.0.0.1:27017/schoolApp")
+mongoose.connect("mongodb+srv://bytebuilder2025_db_user:L4ocWYO4civ7AqzE@cluster0.pq1w5lx.mongodb.net/?appName=Cluster0")
+  .then(() => console.log("✅ MongoDB Connected: schoolApp"))
+  .catch((err) => console.error("❌ MongoDB Connection Error:", err.message));
+
+// Middleware to check database connection
+app.use((req, res, next) => {
+  if (mongoose.connection.readyState !== 1) {
+    return res.status(503).json({ message: "Database is offline. Please start MongoDB service." });
+  }
+  next();
+});
 
 app.use("/api/auth", require("./Routes/authRoute"));
 app.use("/api/students", require("./Routes/adminStudentRoute"));

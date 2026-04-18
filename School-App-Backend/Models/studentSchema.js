@@ -30,10 +30,12 @@ const studentSchema = new mongoose.Schema(
     admissionNumber: {
       type: String,
       unique: true,
+      sparse: true,
     },
 
     class: {
       type: String,
+      required: true,
       enum: [
         "Pre-Nursery",
         "Nursery",

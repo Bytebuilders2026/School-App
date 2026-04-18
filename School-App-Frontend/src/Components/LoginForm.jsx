@@ -41,7 +41,13 @@ export default function LoginForm({ role, setRole }) {
       if (userRole === "student") navigate("/student/dashboard");
       if (userRole === "parent") navigate("/parent/dashboard");
     } catch (err) {
-      alert(err.response?.data?.message || "Error");
+      if (!err.response) {
+        alert("Server is not responding. Please make sure the backend is running.");
+      } else if (err.response.status === 503) {
+        alert(err.response.data.message || "Database is offline. Please start MongoDB.");
+      } else {
+        alert(err.response?.data?.message || err.response?.data?.error || "Error during login");
+      }
     }
   };
   return (

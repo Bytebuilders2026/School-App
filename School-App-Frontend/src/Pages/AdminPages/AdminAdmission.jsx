@@ -25,6 +25,8 @@ export default function AdminAdmission() {
     parentName: "",
     parentPhone: "",
     parentEmail: "",
+    parentOccupation: "",
+    parentAddress: "",
   });
 
   const classOptions = [
@@ -72,10 +74,42 @@ export default function AdminAdmission() {
   };
 
   const handleAdd = async () => {
+    // Basic validation
+    if (
+      !form.name ||
+      !form.email ||
+      !form.password ||
+      !form.rollNumber ||
+      !form.class ||
+      !form.section ||
+      !form.parentName ||
+      !form.parentPhone
+    ) {
+      alert("Please fill all required fields (*)");
+      return;
+    }
+
     try {
       await axios.post(`/students/add`, form);
       alert("Student Added successfully");
       setShowForm(false);
+      // Reset form
+      setForm({
+        name: "",
+        email: "",
+        password: "",
+        rollNumber: "",
+        admissionNumber: "",
+        class: "",
+        section: "",
+        phone: "",
+        address: "",
+        parentName: "",
+        parentPhone: "",
+        parentEmail: "",
+        parentOccupation: "",
+        parentAddress: "",
+      });
       fetchTotal();
       handleSearch(""); // reset to show recent
     } catch (err) {
@@ -365,6 +399,12 @@ export default function AdminAdmission() {
                       </span>{" "}
                       {viewStudent.parent.occupation || "—"}
                     </p>
+                    <p className="text-xs text-gray-600 col-span-2">
+                      <span className="font-semibold text-gray-500">
+                        Address:
+                      </span>{" "}
+                      {viewStudent.parent.address || "—"}
+                    </p>
                   </div>
                 ) : (
                   <p className="text-xs text-gray-400 mt-3 italic">
@@ -410,6 +450,7 @@ export default function AdminAdmission() {
                 <input
                   placeholder="e.g. John Doe"
                   className="w-full p-2.5 border border-gray-200 rounded-xl text-sm focus:border-[#89D4FF] focus:outline-none bg-gray-50 focus:bg-white transition"
+                  value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
                 />
               </div>
@@ -422,6 +463,7 @@ export default function AdminAdmission() {
                   type="email"
                   placeholder="Email"
                   className="w-full p-2.5 border border-gray-200 rounded-xl text-sm focus:border-[#89D4FF] focus:outline-none bg-gray-50 focus:bg-white transition"
+                  value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
                 />
               </div>
@@ -434,6 +476,7 @@ export default function AdminAdmission() {
                   type="password"
                   placeholder="Password"
                   className="w-full p-2.5 border border-gray-200 rounded-xl text-sm focus:border-[#89D4FF] focus:outline-none bg-gray-50 focus:bg-white transition"
+                  value={form.password}
                   onChange={(e) =>
                     setForm({ ...form, password: e.target.value })
                   }
@@ -447,6 +490,7 @@ export default function AdminAdmission() {
                 <input
                   placeholder="Roll Number"
                   className="w-full p-2.5 border border-gray-200 rounded-xl text-sm focus:border-[#89D4FF] focus:outline-none bg-gray-50 focus:bg-white transition"
+                  value={form.rollNumber}
                   onChange={(e) =>
                     setForm({ ...form, rollNumber: e.target.value })
                   }
@@ -460,6 +504,7 @@ export default function AdminAdmission() {
                 <input
                   placeholder="Admission Number"
                   className="w-full p-2.5 border border-gray-200 rounded-xl text-sm focus:border-[#89D4FF] focus:outline-none bg-gray-50 focus:bg-white transition"
+                  value={form.admissionNumber}
                   onChange={(e) =>
                     setForm({ ...form, admissionNumber: e.target.value })
                   }
@@ -472,6 +517,7 @@ export default function AdminAdmission() {
                 </label>
                 <select
                   className="w-full p-2.5 border border-gray-200 rounded-xl text-sm focus:border-[#89D4FF] focus:outline-none bg-gray-50 focus:bg-white transition"
+                  value={form.class}
                   onChange={(e) => setForm({ ...form, class: e.target.value })}
                 >
                   <option value="">Select Class</option>
@@ -489,6 +535,7 @@ export default function AdminAdmission() {
                 </label>
                 <select
                   className="w-full p-2.5 border border-gray-200 rounded-xl text-sm focus:border-[#89D4FF] focus:outline-none bg-gray-50 focus:bg-white transition"
+                  value={form.section}
                   onChange={(e) =>
                     setForm({ ...form, section: e.target.value })
                   }
@@ -509,6 +556,7 @@ export default function AdminAdmission() {
                 <input
                   placeholder="Phone"
                   className="w-full p-2.5 border border-gray-200 rounded-xl text-sm focus:border-[#89D4FF] focus:outline-none bg-gray-50 focus:bg-white transition"
+                  value={form.phone}
                   onChange={(e) => setForm({ ...form, phone: e.target.value })}
                 />
               </div>
@@ -520,6 +568,7 @@ export default function AdminAdmission() {
                 <input
                   placeholder="Full Address"
                   className="w-full p-2.5 border border-gray-200 rounded-xl text-sm focus:border-[#89D4FF] focus:outline-none bg-gray-50 focus:bg-white transition"
+                  value={form.address}
                   onChange={(e) =>
                     setForm({ ...form, address: e.target.value })
                   }
@@ -539,6 +588,7 @@ export default function AdminAdmission() {
                 <input
                   placeholder="e.g. Robert Doe"
                   className="w-full p-2.5 border border-gray-200 rounded-xl text-sm focus:border-[#89D4FF] focus:outline-none bg-gray-50 focus:bg-white transition"
+                  value={form.parentName}
                   onChange={(e) =>
                     setForm({ ...form, parentName: e.target.value })
                   }
@@ -552,13 +602,14 @@ export default function AdminAdmission() {
                 <input
                   placeholder="10-digit Phone Number"
                   className="w-full p-2.5 border border-gray-200 rounded-xl text-sm focus:border-[#89D4FF] focus:outline-none bg-gray-50 focus:bg-white transition"
+                  value={form.parentPhone}
                   onChange={(e) =>
                     setForm({ ...form, parentPhone: e.target.value })
                   }
                 />
               </div>
 
-              <div className="col-span-2">
+              <div>
                 <label className="text-[11px] font-semibold text-gray-500 uppercase tracking-wide block mb-1">
                   Parent Email (Optional)
                 </label>
@@ -566,8 +617,37 @@ export default function AdminAdmission() {
                   type="email"
                   placeholder="parent@example.com"
                   className="w-full p-2.5 border border-gray-200 rounded-xl text-sm focus:border-[#89D4FF] focus:outline-none bg-gray-50 focus:bg-white transition"
+                  value={form.parentEmail}
                   onChange={(e) =>
                     setForm({ ...form, parentEmail: e.target.value })
+                  }
+                />
+              </div>
+
+              <div>
+                <label className="text-[11px] font-semibold text-gray-500 uppercase tracking-wide block mb-1">
+                  Parent Occupation
+                </label>
+                <input
+                  placeholder="e.g. Engineer"
+                  className="w-full p-2.5 border border-gray-200 rounded-xl text-sm focus:border-[#89D4FF] focus:outline-none bg-gray-50 focus:bg-white transition"
+                  value={form.parentOccupation}
+                  onChange={(e) =>
+                    setForm({ ...form, parentOccupation: e.target.value })
+                  }
+                />
+              </div>
+
+              <div className="col-span-2">
+                <label className="text-[11px] font-semibold text-gray-500 uppercase tracking-wide block mb-1">
+                  Parent Address
+                </label>
+                <input
+                  placeholder="Parent's Address"
+                  className="w-full p-2.5 border border-gray-200 rounded-xl text-sm focus:border-[#89D4FF] focus:outline-none bg-gray-50 focus:bg-white transition"
+                  value={form.parentAddress}
+                  onChange={(e) =>
+                    setForm({ ...form, parentAddress: e.target.value })
                   }
                 />
               </div>

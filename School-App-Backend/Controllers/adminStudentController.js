@@ -8,6 +8,7 @@ exports.addStudent = async (req, res) => {
     const { 
       email, password, rollNumber, 
       parentName, parentPhone, parentEmail,
+      parentOccupation, parentAddress,
       ...studentData 
     } = req.body;
 
@@ -40,6 +41,8 @@ exports.addStudent = async (req, res) => {
         phone: parentPhone,
         email: parentEmail,
         password: parentPhone,
+        occupation: parentOccupation,
+        address: parentAddress,
         children: []
       });
     }
