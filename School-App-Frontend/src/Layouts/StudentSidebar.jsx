@@ -65,7 +65,11 @@ export default function StudentSidebar({ children }) {
     { name: "Performance", path: "/student/performance", icon: TrendingUp },
     { name: "Academic Result", path: "/student/result", icon: FileText },
     { name: "Doc Requests", path: "/student/doc-requests", icon: FileText },
-
+    {
+      name: "Leave Portal",
+      path: "/student/leave-panel",
+      icon: CalendarDays,
+    },
   ];
 
   const bottomNavItems = [

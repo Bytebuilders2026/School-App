@@ -37,6 +37,7 @@ import StudentMessage from "./Pages/StudentPages/StudentMessage";
 import StudentPerformance from "./Pages/StudentPages/StudentPerformance";
 import StudentResult from "./Pages/StudentPages/StudentResult";
 import StudentDocRequest from "./Pages/StudentPages/StudentDocRequest";
+import StudentLeavePanel from "./Pages/StudentPages/StudentLeavePanel";
 
 
 // Parent Routes
@@ -90,6 +91,7 @@ function App() {
         <Route path="/student/performance" element={<StudentPerformance />} />
         <Route path="/student/result" element={<StudentResult />} />
         <Route path="/student/doc-requests" element={<StudentDocRequest />} />
+        <Route path="/student/leave-panel" element={<StudentLeavePanel />} />
 
 
         {/* Parent Routes */}

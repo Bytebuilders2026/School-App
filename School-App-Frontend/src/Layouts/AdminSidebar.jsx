@@ -50,6 +50,7 @@ export default function AdminSidebar({ children }) {
     { name: "Fees", path: "/admin/fees", icon: CreditCard },
     { name: "Announcements", path: "/admin/announcements", icon: Megaphone },
     { name: "Reports", path: "/admin/reports", icon: FileBarChart },
+    { name: "Leave Adjustments", path: "/admin/timetable-adjustments", icon: CalendarDays },
     { name: "Logout", path: "/", icon: LogOut, isLogout: true },
   ];
 

@@ -26,11 +26,13 @@ exports.getLeaves = async (req, res) => {
 exports.getSuggestions = async (req, res) => {
   try {
     const { leaveId } = req.params;
+    const { date: queryDate } = req.query;
     const leave = await TeacherLeave.findById(leaveId).populate("teacher");
     if (!leave) return res.status(404).json({ error: "Leave not found" });
 
     const absentTeacher = leave.teacher;
-    const dateObj = new Date(leave.date);
+    const dateOfSubstitution = queryDate || leave.date || leave.startDate;
+    const dateObj = new Date(dateOfSubstitution);
     const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
     const dayOfWeek = days[dateObj.getDay()];
 

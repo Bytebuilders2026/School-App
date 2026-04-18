@@ -1,10 +1,18 @@
 const mongoose = require("mongoose");
 
-const teacherLeaveSchema = new mongoose.Schema(
+const studentLeaveSchema = new mongoose.Schema(
   {
-    teacher: {
+    student: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "teacher",
+      ref: "student",
+      required: true,
+    },
+    class: {
+      type: String,
+      required: true,
+    },
+    section: {
+      type: String,
       required: true,
     },
     startDate: {
@@ -28,10 +36,14 @@ const teacherLeaveSchema = new mongoose.Schema(
       enum: ["Pending", "Approved", "Rejected"],
       default: "Pending",
     },
+    approvedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "teacher",
+    },
   },
   {
     timestamps: true,
   }
 );
 
-module.exports = mongoose.model("teacherleave", teacherLeaveSchema);
+module.exports = mongoose.model("studentleave", studentLeaveSchema);

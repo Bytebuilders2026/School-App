@@ -66,6 +66,11 @@ export default function TeacherSidebar({ children }) {
       path: "/teacher/doc-requests",
       icon: ClipboardCheck,
     },
+    {
+      name: "Leave Management",
+      path: "/teacher/leave-panel",
+      icon: CalendarDays,
+    },
     { name: "Logout", path: "/", icon: LogOut, isLogout: true },
 
   ];
