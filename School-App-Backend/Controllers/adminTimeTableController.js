@@ -52,3 +52,15 @@ exports.deleteTimetable = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+exports.getAllTimetables = async (req, res) => {
+  try {
+    const data = await Timetable.find({}).populate({
+      path: "periods.teacher",
+      select: "name",
+    });
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};

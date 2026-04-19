@@ -74,8 +74,12 @@ exports.getSuggestions = async (req, res) => {
         !busySet.has(t._id.toString())
       );
 
-      const highPriority = availableTeachers.filter(t => t.subjects && t.subjects.includes(ac.subject));
-      const fallback = availableTeachers.filter(t => !t.subjects || !t.subjects.includes(ac.subject));
+      const highPriority = availableTeachers.filter(t => 
+        t.subjects && t.subjects.some(s => s.toLowerCase() === ac.subject.toLowerCase())
+      );
+      const fallback = availableTeachers.filter(t => 
+        !t.subjects || !t.subjects.some(s => s.toLowerCase() === ac.subject.toLowerCase())
+      );
 
       return {
         ...ac,

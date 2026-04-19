@@ -35,14 +35,30 @@ export default function StudentSidebar({ children }) {
     }
 
     fetchNotifications();
+    const interval = setInterval(fetchNotifications, 30000); // Check every 30s
+    return () => clearInterval(interval);
   }, [navigate]);
 
   const fetchNotifications = async () => {
     try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
       const res = await axios.get(`${API_BASE_URL}/notifications/mine`, {
-         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+         headers: { Authorization: `Bearer ${token}` }
       });
-      setNotifications(res.data || []);
+      const newNotifs = res.data || [];
+      
+      // 🔊 Play sound if new unread notification arrives
+      setNotifications(prev => {
+        const prevUnreadCount = prev.filter(n => !n.isRead).length;
+        const currentUnreadCount = newNotifs.filter(n => !n.isRead).length;
+        
+        if (currentUnreadCount > prevUnreadCount) {
+          const audio = new Audio("https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3");
+          audio.play().catch(e => console.log("Audio play failed:", e));
+        }
+        return newNotifs;
+      });
     } catch (err) {}
   };
 

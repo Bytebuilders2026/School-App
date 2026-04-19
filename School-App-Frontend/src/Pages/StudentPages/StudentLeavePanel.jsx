@@ -26,7 +26,7 @@ const StudentLeavePanel = () => {
             // Actually, I can just use a filter on all leaves if I had a generic one, 
             // but let's assume we fetch them.
             // I'll add a new endpoint in backend for this.
-            const res = await axiosInstance.get("/api/leave/student/my-leaves");
+            const res = await axiosInstance.get("/leave/student/my-leaves");
             setLeaves(res.data);
         } catch (err) {
             console.error(err);
@@ -39,7 +39,7 @@ const StudentLeavePanel = () => {
 
         try {
             setLoading(true);
-            await axiosInstance.post("/api/leave/student/request", {
+            await axiosInstance.post("/leave/student/request", {
                 studentId,
                 startDate,
                 endDate,

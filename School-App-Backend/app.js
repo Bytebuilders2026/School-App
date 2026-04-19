@@ -6,12 +6,22 @@ const timetableRoutes = require("./Routes/adminTimetableRoute");
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: "*",
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
 app.use(express.json());
 
 mongoose.connect("mongodb+srv://bytebuilder2025_db_user:L4ocWYO4civ7AqzE@cluster0.pq1w5lx.mongodb.net/?appName=Cluster0")
   .then(() => console.log("✅ MongoDB Connected: schoolApp"))
   .catch((err) => console.error("❌ MongoDB Connection Error:", err.message));
+
+// 🔍 Global Request Logger
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  next();
+});
 
 // Middleware to check database connection
 app.use((req, res, next) => {
@@ -36,6 +46,7 @@ app.use("/api/marks", require("./Routes/resultRoute"));
 app.use("/api/syllabus", require("./Routes/syllabusRoute"));
 app.use("/api/datesheet", require("./Routes/datesheetRoute"));
 app.use("/api/notifications", require("./Routes/notificationRoute"));
+
 app.use("/api/doc-requests", require("./Routes/docRequestRoute"));
 app.use("/api/parent-portal", require("./Routes/parentPortalRoute"));
 app.use("/api/admin/fees", require("./Routes/adminFeeRoute"));

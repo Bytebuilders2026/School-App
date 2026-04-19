@@ -45,8 +45,28 @@ exports.requestStudentLeave = async (req, res) => {
 // Teacher Leave Request
 exports.requestTeacherLeave = async (req, res) => {
   try {
-    const { teacherId, startDate, endDate, reason } = req.body;
+    let { teacherId, startDate, endDate, reason } = req.body;
+    console.log("=== LEAVE REQUEST ===");
+    console.log("Body:", req.body);
+    console.log("User:", req.user);
+    
+    // If teacherId is not provided, try to find it from the authenticated user
+    if (!teacherId && req.user && req.user.id) {
+        const profile = await Teacher.findOne({ user: req.user.id });
+        if (profile) {
+            teacherId = profile._id;
+            console.log("Found profile from user.id:", teacherId);
+        }
+    }
+
+    if (!teacherId) {
+        console.log("Error: teacherId not found");
+        return res.status(400).json({ error: "Teacher ID is required" });
+    }
+
     const dates = getDatesInRange(startDate, endDate);
+    console.log("Dates calculated:", dates);
+
     const leave = await TeacherLeave.create({
       teacher: teacherId,
       startDate,
@@ -55,8 +75,10 @@ exports.requestTeacherLeave = async (req, res) => {
       reason,
       status: "Pending"
     });
+    console.log("Leave created successfully:", leave._id);
     res.json({ message: "Leave requested successfully", leave });
   } catch (err) {
+    console.error("LEAVE REQUEST ERROR:", err);
     res.status(500).json({ error: err.message });
   }
 };
@@ -85,11 +107,25 @@ exports.getStudentLeavesForTeacher = async (req, res) => {
 // Get Teacher Leaves (For Admin)
 exports.getTeacherLeavesForAdmin = async (req, res) => {
   try {
-    const leaves = await TeacherLeave.find().populate("teacher", "name employeeId subjects");
+    const leaves = await TeacherLeave.find().populate("teacher", "name employeeId subjects").sort({ createdAt: -1 });
     res.json(leaves);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
+};
+
+// Get My Leaves (For Teacher)
+exports.getMyTeacherLeaves = async (req, res) => {
+    try {
+        const teacherId = req.user.id;
+        const profile = await Teacher.findOne({ user: teacherId });
+        if (!profile) return res.status(404).json({ error: "Teacher profile not found" });
+
+        const leaves = await TeacherLeave.find({ teacher: profile._id }).sort({ createdAt: -1 });
+        res.json(leaves);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 };
 
 // Approve Student Leave (Marks Attendance Automatically)

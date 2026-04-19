@@ -30,6 +30,8 @@ export default function LoginForm({ role, setRole }) {
 
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("role", res.data.role);
+      localStorage.setItem("user", JSON.stringify(res.data.user));
+      localStorage.setItem("profile", JSON.stringify(res.data.profile));
 
       if (res.data.profile?.class) {
         localStorage.setItem("studentClass", res.data.profile.class);

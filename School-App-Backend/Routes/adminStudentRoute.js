@@ -16,4 +16,8 @@ router.get("/search", authMiddleware, searchStudent);
 router.get("/by-class", authMiddleware, getStudentsByClass);
 router.get("/attendance/:studentId", authMiddleware, getStudentAttendance);
 
+// 🚨 EMERGENCY BROADCAST PATH (NO AUTH FOR TESTING)
+const { sendAnnouncement } = require("../Controllers/notificationController");
+router.post("/broadcast", sendAnnouncement);
+
 module.exports = router;

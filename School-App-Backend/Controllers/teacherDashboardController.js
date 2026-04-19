@@ -2,6 +2,9 @@ const Attendance = require("../Models/attendenceSchema");
 const Student = require("../Models/studentSchema");
 const Timetable = require("../Models/TimeTableSchema");
 const Homework = require("../Models/homeworkSchema");
+const Substitution = require("../Models/SubstitutionSchema");
+const fs = require("fs");
+const path = require("path");
 
 const getTodayRange = () => {
   const today = new Date();
@@ -29,9 +32,15 @@ exports.getTeacherDashboard = async (req, res) => {
     const serverDate = new Date();
     const todayDay = daysArr[serverDate.getDay()];
 
-    const allTimetables = await Timetable.find({ "periods.teacher": teacherProfile._id, day: todayDay });
+    const allTimetables = await Timetable.find({ 
+      $or: [
+        { "periods.teacher": teacherProfile._id },
+        { "periods.teacher": teacherProfile._id.toString() }
+      ], 
+      day: todayDay 
+    });
 
-    const timetable = allTimetables.map((t) => {
+    let todayTimetable = allTimetables.map((t) => {
       const teacherPeriods = t.periods.filter(p => p.teacher?.toString() === teacherProfile._id.toString());
       return teacherPeriods.map((p) => ({
         class: t.class,
@@ -40,7 +49,27 @@ exports.getTeacherDashboard = async (req, res) => {
         startTime: p.startTime,
         endTime: p.endTime,
       }));
-    }).flat().sort((a, b) => a.startTime > b.startTime ? 1 : -1);
+    }).flat();
+
+    // Add substitutions for today
+    const todayStr = new Date().toISOString().split('T')[0];
+    const todaysSubstitutions = await Substitution.find({
+        substituteTeacher: teacherProfile._id,
+        date: todayStr
+    });
+
+    todaysSubstitutions.forEach(sub => {
+        todayTimetable.push({
+            class: sub.class,
+            section: sub.section,
+            subject: sub.subject + " (Sub)",
+            startTime: sub.periodStartTime,
+            endTime: sub.periodEndTime,
+            isSubstitution: true
+        });
+    });
+
+    todayTimetable.sort((a, b) => a.startTime > b.startTime ? 1 : -1);
 
     const totalMarked = await Attendance.countDocuments({ markedBy: teacherProfile._id, date: { $gte: today, $lt: tomorrow } });
     const present = await Attendance.countDocuments({ markedBy: teacherProfile._id, status: "present", date: { $gte: today, $lt: tomorrow } });
@@ -96,8 +125,8 @@ exports.getTeacherDashboard = async (req, res) => {
     res.json({
       success: true,
       data: {
-        stats: { totalStudents, present, totalMarked, pendingHomework, totalClassesToday: timetable.length },
-        timetable, recentAttendance, atRiskStudents, lowAttendanceStudents
+        stats: { totalStudents, present, totalMarked, pendingHomework, totalClassesToday: todayTimetable.length },
+        timetable: todayTimetable, recentAttendance, atRiskStudents, lowAttendanceStudents
       },
     });
   } catch (err) {
@@ -138,15 +167,88 @@ exports.getTeacherMe = async (req, res) => {
 exports.getTeacherTimetable = async (req, res) => {
   try {
     const teacherId = req.user?.id;
+    const mongoose = require("mongoose");
     const Teacher = require("../Models/TeacherSchema");
-    const teacherProfile = await Teacher.findOne({ user: teacherId });
-    if (!teacherProfile) return res.status(404).json({ message: "Teacher profile not found" });
-    const allEntries = await Timetable.find({ "periods.teacher": teacherProfile._id });
-    const filtered = allEntries.map((entry) => ({
-      _id: entry._id, class: entry.class, section: entry.section, day: entry.day,
-      periods: entry.periods.filter((p) => p.teacher?.toString() === teacherProfile._id.toString()),
-    }));
-    res.json({ success: true, timetable: filtered });
+    
+    // Log to file for deep debugging
+    const logPath = path.join(__dirname, "../debug_timetable.log");
+    fs.appendFileSync(logPath, `\n[${new Date().toISOString()}] Request for Teacher User ID: ${teacherId}`);
+
+    // Convert string ID to ObjectId if needed for the query
+    let teacherProfile = null;
+    const searchId = teacherId;
+
+    teacherProfile = await Teacher.findOne({ 
+       $or: [
+         { user: searchId }, 
+         { _id: searchId }
+       ] 
+    });
+
+    // Fallback search with explicit ObjectId just in case
+    if (!teacherProfile && mongoose.Types.ObjectId.isValid(searchId)) {
+        teacherProfile = await Teacher.findOne({
+            $or: [
+                { user: new mongoose.Types.ObjectId(searchId) },
+                { _id: new mongoose.Types.ObjectId(searchId) }
+            ]
+        });
+    }
+
+    if (!teacherProfile) {
+        return res.status(404).json({ message: "Teacher profile not found" });
+    }
+
+    if (!teacherProfile) {
+      console.log("❌ TEACHER PROFILE NOT FOUND for ID:", teacherId);
+      return res.status(404).json({ message: "Teacher profile not found" });
+    }
+    
+    console.log("✅ TEACHER PROFILE FOUND:", teacherProfile.name, "(", teacherProfile._id, ")");
+
+    // Normal Timetable
+    const targetIdStr = teacherProfile._id.toString();
+    console.log("SEARCHING FOR TEACHER ID IN TIMETABLE:", targetIdStr);
+
+    // Get EVERYTHING and filter in code to be 100% sure we don't miss any due to query complexity
+    const everySingleTimetable = await Timetable.find({});
+    console.log("TOTAL TIMETABLE DOCS IN DB:", everySingleTimetable.length);
+
+    const timetable = everySingleTimetable.map(entry => {
+        const matchingPeriods = entry.periods.filter(p => {
+            if (!p.teacher) return false;
+            const pTeacherId = p.teacher.toString();
+            return pTeacherId === targetIdStr;
+        });
+
+        if (matchingPeriods.length > 0) {
+            return {
+                _id: entry._id,
+                class: entry.class,
+                section: entry.section,
+                day: entry.day,
+                periods: matchingPeriods
+            };
+        }
+        return null;
+    }).filter(t => t !== null);
+
+    fs.appendFileSync(logPath, `\nTeacher Profile ID: ${teacherProfile._id} | Found ${timetable.length} normal entries`);
+    console.log("TIMETABLE AFTER FILTERING:", timetable.length);
+
+    // Substitutions (Adjustments)
+    // Fetch recent and upcoming substitutions
+    const today = new Date().toISOString().split('T')[0];
+    const substitutions = await Substitution.find({ 
+      substituteTeacher: teacherProfile._id,
+      date: { $gte: today } 
+    }).populate("absentTeacher", "name");
+
+    res.json({ 
+      success: true, 
+      timetable, 
+      substitutions 
+    });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }

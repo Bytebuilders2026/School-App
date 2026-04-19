@@ -8,6 +8,7 @@ router.post("/teacher/request", protect, leaveController.requestTeacherLeave);
 
 router.get("/student/all", protect, leaveController.getStudentLeavesForTeacher);
 router.get("/student/my-leaves", protect, leaveController.getMyLeavesForStudent);
+router.get("/teacher/my-leaves", protect, leaveController.getMyTeacherLeaves);
 router.get("/teacher/all", protect, leaveController.getTeacherLeavesForAdmin);
 
 router.post("/student/approve", protect, leaveController.approveStudentLeave);

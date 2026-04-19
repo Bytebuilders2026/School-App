@@ -164,3 +164,14 @@ exports.getTeacherDetail = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+exports.getMyProfile = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const teacher = await Teacher.findOne({ user: userId });
+        if (!teacher) return res.status(404).json({ message: "Teacher profile not found" });
+        res.json(teacher);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+};

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import AdminSidebar from "../../Layouts/AdminSidebar";
 import { Calendar, Users, BarChart3, Inbox } from "lucide-react";
@@ -201,6 +202,7 @@ function AddTimetableModal({ cls, section, teachers, onClose, onSave }) {
 
 // ─── Main Page ───────────────────────────────────────────────────────────────
 export default function AdminTimetable() {
+  const navigate = useNavigate();
   const [selectedClass, setSelectedClass] = useState(null);
   const [selectedSection, setSelectedSection] = useState(null);
   const [timetable, setTimetable] = useState([]);
@@ -249,7 +251,15 @@ export default function AdminTimetable() {
                 className="text-sm text-[#89D4FF] hover:underline">{selectedClass}</button>
             </>
           )}
-          <div className="ml-auto">
+          <div className="ml-auto flex gap-3">
+            {!selectedSection && (
+              <button 
+                onClick={() => navigate("/admin/teacher-timetable")}
+                className="bg-indigo-50 text-indigo-600 text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-indigo-100 transition border border-indigo-100 flex items-center gap-2"
+              >
+                <Users size={16} /> Teacher-wise View
+              </button>
+            )}
             {selectedSection && (
               <button onClick={() => setShowAdd(true)}
                 className="bg-[#89D4FF] text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-[#6ac0f0] transition shadow-sm">
@@ -338,9 +348,19 @@ export default function AdminTimetable() {
                             return (
                               <td key={day} className="px-3 py-3 border-l border-gray-100 text-center">
                                 {p ? (
-                                  <div className={`rounded-xl px-2.5 py-2 text-left ${isToday ? "bg-[#89D4FF]/15 border border-[#89D4FF]/40" : "bg-blue-50 border border-blue-100"}`}>
-                                    <p className={`text-xs font-bold ${isToday ? "text-[#1a8fc7]" : "text-blue-700"}`}>{p.subject}</p>
-                                    <p className="text-[10px] text-gray-400 mt-0.5">{p.teacher?.name || "—"}</p>
+                                  <div className={`rounded-xl px-2.5 py-2 text-left h-full flex flex-col justify-center ${
+                                    p.subject === "Recess" 
+                                    ? "bg-emerald-50 border border-emerald-100 items-center text-center" 
+                                    : (isToday ? "bg-[#89D4FF]/15 border border-[#89D4FF]/40" : "bg-blue-50 border border-blue-100")
+                                  }`}>
+                                    <div>
+                                      <p className={`text-xs font-bold ${
+                                        p.subject === "Recess" ? "text-emerald-700 uppercase tracking-widest text-[10px]" : (isToday ? "text-[#1a8fc7]" : "text-blue-700")
+                                      }`}>{p.subject}</p>
+                                      {p.subject !== "Recess" && (
+                                        <p className="text-[10px] text-gray-400 mt-0.5">{p.teacher?.name || "—"}</p>
+                                      )}
+                                    </div>
                                   </div>
                                 ) : (
                                   <span className="text-gray-200">—</span>

@@ -1,7 +1,17 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import TeacherSidebar from "../../Layouts/TeacherSidebar";
 import axiosInstance from "../../axiosInstance";
+import { 
+  PlusCircle, 
+  Clock, 
+  Calendar, 
+  FileText, 
+  CheckCircle, 
+  XCircle, 
+  Users,
+  Bell,
+  ArrowRight
+} from "lucide-react";
 
 const TeacherLeavePanel = () => {
   const [startDate, setStartDate] = useState("");
@@ -10,21 +20,42 @@ const TeacherLeavePanel = () => {
   const [teacherId, setTeacherId] = useState(""); 
   const [substitutions, setSubstitutions] = useState([]);
   const [studentLeaves, setStudentLeaves] = useState([]);
+  const [myLeaves, setMyLeaves] = useState([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
-    const id = storedUser._id || (storedUser.user?._id);
-    if(id) {
-      setTeacherId(id);
-      fetchSubstitutions(id);
-      fetchStudentLeaves();
-    }
+    initializeData();
   }, []);
+
+  const initializeData = async () => {
+    try {
+      let profile = JSON.parse(localStorage.getItem("profile") || "null");
+      
+      // If profile is missing (e.g. user was logged in before our fix)
+      if (!profile) {
+        const res = await axiosInstance.get("/teacher/me");
+        profile = res.data;
+        localStorage.setItem("profile", JSON.stringify(profile));
+      }
+
+      if (profile) {
+        setTeacherId(profile._id);
+        fetchSubstitutions(profile._id);
+      }
+      
+      fetchStudentLeaves();
+      fetchMyLeaves();
+    } catch (err) {
+      console.error("Failed to initialize teacher panel", err);
+      // Even if profile fails, we can still try to fetch leaves (backend handles it)
+      fetchStudentLeaves();
+      fetchMyLeaves();
+    }
+  };
 
   const fetchSubstitutions = async (id) => {
     try {
-      const res = await axiosInstance.get(`/api/autotimetable/substitutions/${id}`);
+      const res = await axiosInstance.get(`/autotimetable/substitutions/${id}`);
       setSubstitutions(res.data);
     } catch (err) {
       console.error(err);
@@ -33,30 +64,40 @@ const TeacherLeavePanel = () => {
 
   const fetchStudentLeaves = async () => {
     try {
-      const res = await axiosInstance.get("/api/leave/student/all");
+      const res = await axiosInstance.get("/leave/student/all");
       setStudentLeaves(res.data);
     } catch (err) {
       console.error(err);
     }
   };
 
+  const fetchMyLeaves = async () => {
+      try {
+          const res = await axiosInstance.get("/leave/teacher/my-leaves");
+          setMyLeaves(res.data);
+      } catch (err) {
+          console.error(err);
+      }
+  };
+
   const handleLeaveSubmit = async (e) => {
     e.preventDefault();
     try {
       setLoading(true);
-      await axiosInstance.post("/api/leave/teacher/request", {
-        teacherId,
+      await axiosInstance.post("/leave/teacher/request", {
+        teacherId, // Can be null, backend will try to find it
         startDate,
         endDate,
         reason
       });
-      alert("Leave successfully requested! It is now pending admin approval.");
+      alert("Application Submitted! Sending to Admin for approval.");
       setStartDate("");
       setEndDate("");
       setReason("");
+      fetchMyLeaves();
     } catch (err) {
       console.error(err);
-      alert("Failed to submit leave request.");
+      alert("Failed to submit leave request: " + (err.response?.data?.error || err.message));
     } finally {
       setLoading(false);
     }
@@ -64,7 +105,7 @@ const TeacherLeavePanel = () => {
 
   const approveStudentLeave = async (leaveId) => {
     try {
-      await axiosInstance.post("/api/leave/student/approve", { leaveId });
+      await axiosInstance.post("/leave/student/approve", { leaveId });
       alert("Leave Approved!");
       fetchStudentLeaves();
     } catch (err) {
@@ -75,7 +116,7 @@ const TeacherLeavePanel = () => {
 
   const rejectStudentLeave = async (leaveId) => {
     try {
-      await axiosInstance.post("/api/leave/reject", { leaveId, type: 'student' });
+      await axiosInstance.post("/leave/reject", { leaveId, type: 'student' });
       alert("Leave Rejected!");
       fetchStudentLeaves();
     } catch (err) {
@@ -85,155 +126,230 @@ const TeacherLeavePanel = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      <TeacherSidebar />
-      <div className="flex-1 p-8 overflow-y-auto">
-        <header className="mb-8">
-            <h1 className="text-4xl font-extrabold text-indigo-900">Leave & Student Requests</h1>
-            <p className="text-indigo-600 font-medium">Manage your leaves and monitor student attendance requests.</p>
+    <div className="flex h-screen bg-[#F0F2F5]">
+      <div className="w-64 fixed inset-y-0">
+        <TeacherSidebar />
+      </div>
+      
+      <div className="flex-1 ml-64 p-8 overflow-y-auto">
+        {/* Header Section */}
+        <header className="flex justify-between items-center mb-10">
+          <div>
+            <h1 className="text-4xl font-black text-slate-800 tracking-tight">Leave Management</h1>
+            <p className="text-slate-500 font-medium">Coordinate your absence and manage student request flow.</p>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="bg-white p-3 rounded-2xl shadow-sm border border-slate-200 text-slate-600 relative">
+              <Bell size={20} />
+              <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full"></span>
+            </div>
+            <div className="h-12 w-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center font-bold shadow-lg">
+              T
+            </div>
+          </div>
         </header>
-        
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+
+        <div className="grid grid-cols-12 gap-8">
           
-          {/* TEACHER LEAVE FORM */}
-          <div className="xl:col-span-1">
-            <div className="bg-white p-8 rounded-3xl shadow-xl border border-indigo-100">
-                <h2 className="text-2xl font-bold mb-6 text-gray-800 flex items-center">
-                    <span className="bg-indigo-100 p-2 rounded-lg mr-3">📝</span> Apply For Leave
-                </h2>
-                <form onSubmit={handleLeaveSubmit} className="space-y-6">
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-2">From Date</label>
+          {/* Apply Leave Form */}
+          <div className="col-span-12 lg:col-span-4 space-y-8">
+            <div className="bg-white p-10 rounded-[40px] shadow-2xl shadow-indigo-100 border border-slate-100 relative overflow-hidden group">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50 rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-110"></div>
+              
+              <h2 className="text-2xl font-black text-slate-800 mb-8 flex items-center gap-3 relative z-10">
+                <PlusCircle className="text-indigo-600" size={28} />
+                New Application
+              </h2>
+
+              <form onSubmit={handleLeaveSubmit} className="space-y-6 relative z-10">
+                <div className="space-y-4">
+                    <div className="flex gap-4">
+                        <div className="flex-1">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">From</label>
                             <input 
                                 type="date"
                                 required
                                 value={startDate}
                                 onChange={(e) => setStartDate(e.target.value)}
-                                className="w-full bg-gray-50 border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 rounded-xl p-4 transition"
+                                className="w-full bg-slate-50 border-none rounded-2xl p-4 text-sm font-bold focus:ring-4 focus:ring-indigo-100 transition-all outline-none"
                             />
                         </div>
-                        <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-2">To Date</label>
+                        <div className="flex-1">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">To</label>
                             <input 
                                 type="date"
                                 required
                                 value={endDate}
                                 onChange={(e) => setEndDate(e.target.value)}
-                                className="w-full bg-gray-50 border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 rounded-xl p-4 transition"
+                                className="w-full bg-slate-50 border-none rounded-2xl p-4 text-sm font-bold focus:ring-4 focus:ring-indigo-100 transition-all outline-none"
                             />
                         </div>
                     </div>
                     
                     <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-2">Reason</label>
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Reason for absence</label>
                         <textarea 
                             required
-                            rows={4}
+                            rows={3}
                             value={reason}
                             onChange={(e) => setReason(e.target.value)}
-                            className="w-full bg-gray-50 border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 rounded-xl p-4 transition"
-                            placeholder="Briefly explain your leave..."
+                            className="w-full bg-slate-50 border-none rounded-2xl p-5 text-sm font-medium focus:ring-4 focus:ring-indigo-100 transition-all outline-none"
+                            placeholder="Please provide details..."
                         />
                     </div>
-                    
-                    <button 
-                        type="submit"
-                        disabled={loading}
-                        className="w-full bg-gradient-to-r from-indigo-600 to-blue-500 text-white font-bold py-4 rounded-xl hover:shadow-lg transform hover:-translate-y-1 transition duration-300 disabled:opacity-50"
-                    >
-                        {loading ? "Submitting..." : "Submit Application"}
-                    </button>
-                </form>
+                </div>
+                
+                <button 
+                    type="submit"
+                    disabled={loading}
+                    className="w-full bg-gradient-to-br from-indigo-600 to-indigo-700 text-white font-black py-5 rounded-3xl hover:shadow-2xl hover:shadow-indigo-200 transform hover:-translate-y-1 transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-3"
+                >
+                    {loading ? "Transmitting..." : "Submit to Admin"}
+                    {!loading && <ArrowRight size={18} />}
+                </button>
+              </form>
             </div>
 
-            {/* MY SUBSTITUTIONS */}
-            <div className="bg-white p-8 rounded-3xl shadow-xl border border-emerald-100 mt-8">
-                <h2 className="text-2xl font-bold mb-6 text-gray-800 flex items-center">
-                    <span className="bg-emerald-100 p-2 rounded-lg mr-3">🔄</span> My Substitution Schedule
-                </h2>
+            {/* Substitution Alert */}
+            <div className="bg-slate-900 p-8 rounded-[40px] shadow-2xl text-white relative overflow-hidden text-black">
+                <div className="absolute bottom-0 right-0 w-24 h-24 bg-white/5 rounded-full -mr-10 -mb-10"></div>
+                <h3 className="text-xl font-black mb-6 flex items-center gap-3 text-white">
+                    <Clock className="text-indigo-400" size={24} />
+                    Active Substitutions
+                </h3>
                 
-                {substitutions.length === 0 ? (
-                    <div className="text-center py-6 text-gray-500 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
-                        No active substitution tasks.
-                    </div>
-                ) : (
-                    <div className="space-y-4">
-                        {substitutions.map(sub => (
-                            <div key={sub._id} className="p-4 rounded-2xl bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-100">
-                                <div className="flex justify-between font-bold text-emerald-900 mb-1">
-                                    <span>Class {sub.class}-{sub.section}</span>
-                                    <span className="text-xs">{sub.date}</span>
+                <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar text-white">
+                    {substitutions.length === 0 ? (
+                        <p className="text-slate-400 font-medium italic">No substitution tasks assigned to you currently.</p>
+                    ) : (
+                        substitutions.map(sub => (
+                            <div key={sub._id} className="bg-white/10 border border-white/20 p-5 rounded-3xl hover:bg-white/20 transition-colors">
+                                <div className="flex justify-between items-start mb-2">
+                                    <span className="bg-indigo-500/30 text-indigo-100 font-black text-[10px] px-2.5 py-1 rounded-full uppercase">
+                                        Class {sub.class}-{sub.section}
+                                    </span>
+                                    <span className="text-[10px] font-bold text-slate-400">{sub.date}</span>
                                 </div>
-                                <div className="text-sm text-emerald-800">
-                                    <p><b>{sub.subject}</b> • {sub.periodStartTime} - {sub.periodEndTime}</p>
-                                    <p className="mt-1 opacity-75 italic">For: {sub.absentTeacher?.name}</p>
+                                <div className="font-bold text-lg mb-1 text-white">{sub.subject}</div>
+                                <div className="text-xs text-slate-400 flex items-center gap-2">
+                                    <Clock size={12} /> {sub.periodStartTime} - {sub.periodEndTime}
                                 </div>
+                                <p className="text-[10px] text-slate-500 mt-2 italic">Substitute for: {sub.absentTeacher?.name}</p>
                             </div>
-                        ))}
-                    </div>
-                )}
+                        ))
+                    )}
+                </div>
             </div>
           </div>
 
-          {/* STUDENT LEAVE REQUESTS */}
-          <div className="xl:col-span-2">
-            <div className="bg-white p-8 rounded-3xl shadow-xl border border-amber-100 h-full">
-                <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-2xl font-bold text-gray-800 flex items-center">
-                        <span className="bg-amber-100 p-2 rounded-lg mr-3">🎓</span> Student Leave Requests
+          {/* Activity Logs */}
+          <div className="col-span-12 lg:col-span-8 space-y-8">
+            
+            {/* My Leaves History */}
+            <div className="bg-white p-10 rounded-[40px] shadow-xl border border-slate-100">
+                <div className="flex justify-between items-center mb-8">
+                    <h2 className="text-2xl font-black text-slate-800 flex items-center gap-3">
+                        <FileText className="text-indigo-600" size={28} />
+                        My Application Status
                     </h2>
-                    <span className="bg-amber-500 text-white px-4 py-1 rounded-full text-sm font-bold shadow-sm">
-                        {studentLeaves.filter(l => l.status === "Pending").length} New
-                    </span>
+                    <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">{myLeaves.length} Records</span>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {myLeaves.length === 0 ? (
+                        <div className="col-span-2 text-center py-10 text-slate-400 italic">No leave history found.</div>
+                    ) : (
+                        myLeaves.map(leave => (
+                            <div key={leave._id} className="bg-slate-50 border border-slate-100 p-6 rounded-3xl hover:border-indigo-200 transition-all">
+                                <div className="flex justify-between items-start mb-4">
+                                    <div className="bg-white px-3 py-1.5 rounded-xl border border-slate-100 text-[10px] font-bold text-slate-500 flex items-center gap-2">
+                                        <Calendar size={12} /> {leave.startDate}
+                                    </div>
+                                    <span className={`px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
+                                        leave.status === 'Approved' ? 'bg-emerald-100 text-emerald-700' :
+                                        leave.status === 'Rejected' ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700'
+                                    }`}>
+                                        {leave.status}
+                                    </span>
+                                </div>
+                                <p className="text-sm font-bold text-slate-700 mt-2 line-clamp-2">“{leave.reason}”</p>
+                                <p className="text-[10px] font-black text-slate-400 mt-4 uppercase">{leave.totalDays} Day(s) Requested</p>
+                            </div>
+                        ))
+                    )}
+                </div>
+            </div>
+
+            {/* Student Requests Flow */}
+            <div className="bg-white p-10 rounded-[40px] shadow-xl border border-slate-100">
+                <div className="flex justify-between items-center mb-8">
+                    <h2 className="text-2xl font-black text-slate-800 flex items-center gap-3">
+                        <Users className="text-indigo-600" size={28} />
+                        Student Intake Request
+                    </h2>
+                    <div className="flex gap-2">
+                        <div className="bg-amber-100 text-amber-700 px-4 py-1 rounded-full text-[10px] font-black">
+                            {studentLeaves.filter(l => l.status === "Pending").length} NEW
+                        </div>
+                    </div>
                 </div>
 
-                <div className="overflow-hidden">
+                <div className="space-y-4">
                     {studentLeaves.length === 0 ? (
-                        <div className="text-center py-20 text-gray-500">
-                            <p className="text-xl">Everything is quiet!</p>
-                            <p>No student leave requests found for your classes.</p>
+                        <div className="text-center py-20 bg-slate-50 rounded-[40px] border-2 border-dashed border-slate-200">
+                            <Users className="mx-auto text-slate-300 mb-4" size={48} />
+                            <p className="text-slate-400 font-bold">No student requests for your sections.</p>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {studentLeaves.map(leave => (
-                                <div key={leave._id} className={`p-5 rounded-2xl border transition ${leave.status === 'Pending' ? 'bg-amber-50 border-amber-200 shadow-sm' : 'bg-gray-50 border-gray-100 opacity-75'}`}>
-                                    <div className="flex justify-between items-start mb-3">
-                                        <div>
-                                            <h3 className="font-extrabold text-gray-900 uppercase tracking-tight">{leave.student?.name}</h3>
-                                            <p className="text-xs text-gray-500">Roll: {leave.student?.rollNumber} • Class: {leave.class}-{leave.section}</p>
+                        studentLeaves.map(leave => (
+                            <div key={leave._id} className={`p-6 rounded-[32px] border transition-all ${leave.status === 'Pending' ? 'bg-indigo-50/50 border-indigo-100 shadow-sm' : 'bg-white border-slate-100 opacity-60'}`}>
+                                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-14 h-14 rounded-2xl bg-white shadow-sm flex items-center justify-center font-black text-xl text-indigo-600">
+                                            {leave.student?.name?.charAt(0)}
                                         </div>
-                                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                                            leave.status === 'Approved' ? 'bg-green-100 text-green-700' :
-                                            leave.status === 'Rejected' ? 'bg-red-100 text-red-700' : 'bg-amber-200 text-amber-800'
-                                        }`}>
-                                            {leave.status}
-                                        </span>
-                                    </div>
-                                    <div className="bg-white p-3 rounded-xl mb-4 text-sm text-gray-700 border border-gray-100">
-                                        <p className="font-semibold text-indigo-600 mb-1">{leave.startDate} to {leave.endDate} ({leave.totalDays} Days)</p>
-                                        <p className="italic">"{leave.reason}"</p>
+                                        <div>
+                                            <h3 className="font-black text-slate-800 text-lg uppercase tracking-tight">{leave.student?.name}</h3>
+                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
+                                                Roll {leave.student?.rollNumber} • Class {leave.class}-{leave.section}
+                                            </p>
+                                        </div>
                                     </div>
                                     
-                                    {leave.status === 'Pending' && (
-                                        <div className="flex gap-2 mt-4">
-                                            <button 
-                                                onClick={() => approveStudentLeave(leave._id)}
-                                                className="flex-1 bg-green-600 text-white py-2 rounded-lg font-bold hover:bg-green-700 transition"
-                                            >
-                                                Approve
-                                            </button>
-                                            <button 
-                                                onClick={() => rejectStudentLeave(leave._id)}
-                                                className="flex-1 bg-white text-red-600 border border-red-200 py-2 rounded-lg font-bold hover:bg-red-50 transition"
-                                            >
-                                                Reject
-                                            </button>
+                                    <div className="max-w-xs flex-1">
+                                        <div className="text-xs font-bold text-indigo-900 bg-white border border-indigo-100 px-4 py-2 rounded-2xl mb-1">
+                                           {leave.startDate} to {leave.endDate}
                                         </div>
-                                    )}
+                                        <p className="text-xs text-slate-500 italic px-2">"{leave.reason}"</p>
+                                    </div>
+
+                                    <div className="flex gap-2 w-full md:w-auto">
+                                        {leave.status === 'Pending' ? (
+                                            <>
+                                                <button 
+                                                    onClick={() => approveStudentLeave(leave._id)}
+                                                    className="p-3 rounded-2xl bg-emerald-500 text-white hover:bg-emerald-600 transition shadow-lg shadow-emerald-100"
+                                                >
+                                                    <CheckCircle size={20} />
+                                                </button>
+                                                <button 
+                                                    onClick={() => rejectStudentLeave(leave._id)}
+                                                    className="p-3 rounded-2xl bg-slate-200 text-slate-600 hover:bg-slate-300 transition"
+                                                >
+                                                    <XCircle size={20} />
+                                                </button>
+                                            </>
+                                        ) : (
+                                            <span className={`px-4 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest ${
+                                                leave.status === 'Approved' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'
+                                            }`}>
+                                                {leave.status}
+                                            </span>
+                                        )}
+                                    </div>
                                 </div>
-                            ))}
-                        </div>
+                            </div>
+                        ))
                     )}
                 </div>
             </div>
@@ -246,4 +362,3 @@ const TeacherLeavePanel = () => {
 };
 
 export default TeacherLeavePanel;
-

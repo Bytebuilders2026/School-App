@@ -28,14 +28,39 @@ export default function ParentSidebar({ children }) {
       navigate("/");
     }
     fetchNotifications();
+    const interval = setInterval(fetchNotifications, 30000); // Check every 30s
+    return () => clearInterval(interval);
   }, [navigate]);
 
   const fetchNotifications = async () => {
     try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
       const res = await axios.get(`${API_BASE_URL}/notifications/mine`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        headers: { Authorization: `Bearer ${token}` },
       });
-      setNotifications(res.data || []);
+      const newNotifs = res.data || [];
+      
+      // 🔊 Play sound if new unread notification arrives
+      setNotifications(prev => {
+        const prevUnreadCount = prev.filter(n => !n.isRead).length;
+        const currentUnreadCount = newNotifs.filter(n => !n.isRead).length;
+        
+        if (currentUnreadCount > prevUnreadCount) {
+          const audio = new Audio("https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3");
+          audio.play().catch(e => console.log("Audio play failed:", e));
+        }
+        return newNotifs;
+      });
+    } catch (err) {}
+  };
+
+  const markAllAsRead = async () => {
+    try {
+      await axios.patch(`${API_BASE_URL}/notifications/read-all`, {}, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+      });
+      fetchNotifications();
     } catch (err) {}
   };
 
@@ -132,7 +157,32 @@ export default function ParentSidebar({ children }) {
                     <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
                   )}
                 </button>
-                {/* Notification Dropdown Placeholder */}
+                {/* Notification Dropdown */}
+                {showNotif && (
+                   <div className="absolute top-14 right-0 w-80 bg-white rounded-2xl shadow-2xl border border-gray-100 p-4 z-[100] animate-in fade-in slide-in-from-top-2">
+                      <div className="flex justify-between items-center mb-4 pb-2 border-b border-gray-50">
+                         <h3 className="font-bold text-gray-800 text-sm">Notifications</h3>
+                         <button onClick={markAllAsRead} className="text-[10px] text-indigo-600 font-bold hover:underline cursor-pointer">Mark all as read</button>
+                      </div>
+                      <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
+                         {notifications.length === 0 ? (
+                            <div className="flex flex-col items-center py-8 opacity-40">
+                              <Bell size={32} className="mb-2" />
+                              <p className="text-xs text-gray-600 font-medium">No recent notifications</p>
+                            </div>
+                         ) : notifications.map(alert => (
+                            <div key={alert._id} className={`p-3 rounded-xl border text-left transition-all ${alert.isRead ? 'bg-gray-50 border-gray-100 opacity-60' : 'bg-indigo-50/50 border-indigo-100 shadow-sm'}`}>
+                               <div className="flex justify-between items-start">
+                                 <p className={`text-xs font-bold leading-tight ${alert.isRead ? 'text-gray-700' : 'text-indigo-600'}`}>{alert.title}</p>
+                                 {!alert.isRead && <span className="w-2 h-2 bg-indigo-600 rounded-full"></span>}
+                               </div>
+                               <p className="text-[11px] text-gray-500 mt-1.5 leading-normal">{alert.message}</p>
+                               <p className="text-[9px] text-gray-400 mt-2 font-medium">{new Date(alert.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                            </div>
+                         ))}
+                      </div>
+                   </div>
+                )}
               </div>
 
               <div className="flex items-center gap-3 pl-6 border-l border-gray-100">

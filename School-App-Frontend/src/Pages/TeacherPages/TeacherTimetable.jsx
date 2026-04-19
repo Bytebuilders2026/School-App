@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
 import TeacherSidebar from "../../Layouts/TeacherSidebar";
 import { BookOpen, Calendar, CalendarClock, Inbox } from "lucide-react";
-import { API_BASE_URL } from "../../apiConfig";
+import axiosInstance from "../../axiosInstance";
 
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
@@ -17,12 +16,37 @@ export default function TeacherTimetable() {
 
   const fetchTimetable = async () => {
     try {
-      const token = localStorage.getItem("token");
-
-      const res = await axios.get(`${API_BASE_URL}/teacher/timetable`, {
-        headers: { Authorization: `Bearer ${token}` },
+      setLoading(true);
+      const res = await axiosInstance.get("/teacher/timetable");
+      console.log("TIMETABLE API RESPONSE:", res.data);
+      
+      let baseTimetable = res.data.timetable || [];
+      const substitutions = res.data.substitutions || [];
+      
+      // Inject substitutions into the timetable view
+      substitutions.forEach(sub => {
+          // Find or create the right day entry
+          let dayEntry = baseTimetable.find(t => t.day === sub.day && t.class === sub.class && t.section === sub.section);
+          if (!dayEntry) {
+              dayEntry = {
+                  _id: sub._id,
+                  class: sub.class,
+                  section: sub.section,
+                  day: sub.day,
+                  periods: []
+              };
+              baseTimetable.push(dayEntry);
+          }
+          // Add the substitution as a period
+          dayEntry.periods.push({
+              subject: sub.subject + " (Sub)",
+              startTime: sub.periodStartTime,
+              endTime: sub.periodEndTime,
+              isSubstitution: true
+          });
       });
-      setTimetable(res.data.timetable || []);
+
+      setTimetable(baseTimetable);
     } catch (err) {
       setError("Failed to load timetable.");
       console.error(err);
@@ -46,6 +70,7 @@ export default function TeacherTimetable() {
           section: entry.section,
           startTime: p.startTime,
           endTime: p.endTime,
+          isSubstitution: p.isSubstitution
         });
       });
       // Sort by startTime within each day
@@ -109,6 +134,8 @@ export default function TeacherTimetable() {
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center py-20 gap-4">
             <Inbox size={64} className="text-gray-300" strokeWidth={1} />
             <h2 className="text-xl font-semibold text-gray-700">No Timetable Assigned</h2>
+            <p className="text-gray-400 text-sm italic">Debug: URL: {axiosInstance.defaults.baseURL}/teacher/timetable</p>
+            <p className="text-gray-400 text-sm italic">Debug: Got {timetable.length} entries from server.</p>
             <p className="text-gray-400 text-sm">Ask your admin to assign you a timetable.</p>
           </div>
         ) : (
@@ -181,22 +208,34 @@ export default function TeacherTimetable() {
                             >
                               {period ? (
                                 <div
-                                  className={`rounded-xl px-3 py-3 text-left ${
-                                    isToday
-                                      ? "bg-[#89D4FF]/15 border border-[#89D4FF]/40"
-                                      : "bg-blue-50 border border-blue-100"
+                                  className={`rounded-xl px-3 py-3 text-left h-full flex flex-col justify-center ${
+                                    period.subject === "Recess" 
+                                      ? "bg-emerald-50 border border-emerald-100 items-center text-center"
+                                      : period.isSubstitution 
+                                      ? "bg-amber-50 border border-amber-200" 
+                                      : (isToday
+                                        ? "bg-[#89D4FF]/15 border border-[#89D4FF]/40"
+                                        : "bg-blue-50 border border-blue-100")
                                   }`}
                                 >
-                                  <p
-                                    className={`text-sm font-bold ${
-                                      isToday ? "text-[#1a8fc7]" : "text-blue-700"
-                                    }`}
-                                  >
-                                    {period.subject}
-                                  </p>
-                                  <p className="text-[11px] text-gray-500 mt-0.5">
-                                    Class {period.class} — {period.section}
-                                  </p>
+                                  <div>
+                                    <p
+                                      className={`text-sm font-bold ${
+                                        period.subject === "Recess"
+                                          ? "text-emerald-700 uppercase tracking-widest text-[10px]"
+                                          : period.isSubstitution
+                                          ? "text-amber-700"
+                                          : (isToday ? "text-[#1a8fc7]" : "text-blue-700")
+                                      }`}
+                                    >
+                                      {period.subject}
+                                    </p>
+                                    {period.subject !== "Recess" && (
+                                      <p className="text-[11px] text-gray-500 mt-0.5">
+                                        Class {period.class} — {period.section}
+                                      </p>
+                                    )}
+                                  </div>
                                 </div>
                               ) : (
                                 <span className="text-gray-200 text-lg">—</span>

@@ -138,8 +138,20 @@ export default function StudentTimetable() {
                           return (
                             <td key={day} className="px-3 py-3 border-l border-gray-100 text-center align-middle">
                               {period ? (
-                                <div className={`rounded-2xl px-3 py-3 text-center ${isToday ? "bg-[#8884d8]/10" : "bg-gray-50"}`}>
-                                  <p className={`text-sm font-bold ${isToday ? "text-[#7169c9]" : "text-gray-700"}`}>
+                                <div className={`rounded-2xl px-3 py-3 text-center ${
+                                  period.subject === "Recess"
+                                    ? "bg-emerald-50 border border-emerald-100"
+                                    : isToday 
+                                    ? "bg-[#8884d8]/10" 
+                                    : "bg-gray-50"
+                                }`}>
+                                  <p className={`text-sm font-bold ${
+                                    period.subject === "Recess"
+                                      ? "text-emerald-700 uppercase tracking-widest text-[10px]"
+                                      : isToday 
+                                      ? "text-[#7169c9]" 
+                                      : "text-gray-700"
+                                  }`}>
                                     {period.subject}
                                   </p>
                                 </div>

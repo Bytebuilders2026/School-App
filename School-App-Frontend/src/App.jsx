@@ -17,6 +17,8 @@ import AdminDatesheet from "./Pages/AdminPages/AdminDatesheet";
 import AdminFees from "./Pages/AdminPages/AdminFees";
 import AdminTimetableAdjustments from "./Pages/AdminPages/AdminTimetableAdjustments";
 import AdminAutoTimetable from "./Pages/AdminPages/AdminAutoTimetable";
+import AdminTeacherTimetable from "./Pages/AdminPages/AdminTeacherTimetable";
+import AdminAnnouncements from "./Pages/AdminPages/AdminAnnouncements";
 import AdminSidebar from "./Layouts/AdminSidebar";
 
 
@@ -68,6 +70,8 @@ function App() {
         <Route path="/admin/fees" element={<AdminFees />} />
         <Route path="/admin/timetable-adjustments" element={<AdminTimetableAdjustments />} />
         <Route path="/admin/auto-timetable" element={<AdminAutoTimetable />} />
+        <Route path="/admin/teacher-timetable" element={<AdminTeacherTimetable />} />
+        <Route path="/admin/announcements" element={<AdminAnnouncements />} />
 
 
         {/* Teacher Routes */}
