@@ -81,10 +81,10 @@ export default function AdminSidebar({ children }) {
   const menuItems = [
     { name: "Dashboard", path: "/admin/dashboard", icon: LayoutDashboard },
     { name: "Admissions", path: "/admin/admissions", icon: NotepadText },
+    { name: "Students", path: "/admin/students", icon: Users },
+
     { name: "Teachers", path: "/admin/teachers", icon: Users },
-    { name: "Parents", path: "/admin/parents", icon: Users },
     { name: "Timetable", path: "/admin/timetable", icon: Calendar },
-    { name: "Teacher Timetable", path: "/admin/teacher-timetable", icon: CalendarDays },
     { name: "Attendance", path: "/admin/attendance", icon: ClipboardList },
     { name: "Homework", path: "/admin/homework", icon: FileText },
     { name: "Syllabus", path: "/admin/syllabus", icon: BookOpen },
@@ -93,7 +93,7 @@ export default function AdminSidebar({ children }) {
     { name: "Fees", path: "/admin/fees", icon: CreditCard },
     { name: "Announcements", path: "/admin/announcements", icon: Megaphone },
     { name: "Reports", path: "/admin/reports", icon: FileBarChart },
-    { name: "Leave Adjustments", path: "/admin/timetable-adjustments", icon: CalendarDays },
+    { name: "Leaves & Adjustments", path: "/admin/timetable-adjustments", icon: CalendarDays },
     { name: "Logout", path: "/", icon: LogOut, isLogout: true },
   ];
 

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import AdminSidebar from "../../Layouts/AdminSidebar";
-import { Calendar, Users, BarChart3, Inbox } from "lucide-react";
+import { Calendar, Users, BarChart3, Inbox, Zap } from "lucide-react";
 import { API_BASE_URL } from "../../apiConfig";
 
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -252,14 +252,18 @@ export default function AdminTimetable() {
             </>
           )}
           <div className="ml-auto flex gap-3">
-            {!selectedSection && (
-              <button 
-                onClick={() => navigate("/admin/teacher-timetable")}
-                className="bg-indigo-50 text-indigo-600 text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-indigo-100 transition border border-indigo-100 flex items-center gap-2"
-              >
-                <Users size={16} /> Teacher-wise View
-              </button>
-            )}
+            <button
+              onClick={() => navigate("/admin/auto-timetable")}
+              className="bg-indigo-600 text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-indigo-700 transition flex items-center gap-2 shadow-sm"
+            >
+              <Zap size={16} /> Auto Timetable
+            </button>
+            <button
+              onClick={() => navigate("/admin/teacher-timetable")}
+              className="bg-indigo-50 text-indigo-600 text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-indigo-100 transition border border-indigo-100 flex items-center gap-2"
+            >
+              <Users size={16} /> Teacher-wise View
+            </button>
             {selectedSection && (
               <button onClick={() => setShowAdd(true)}
                 className="bg-[#89D4FF] text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-[#6ac0f0] transition shadow-sm">
@@ -267,6 +271,7 @@ export default function AdminTimetable() {
               </button>
             )}
           </div>
+
         </div>
 
         <h1 className="text-2xl font-bold text-gray-800">

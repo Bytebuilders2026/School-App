@@ -4,6 +4,7 @@ import Login from "./Pages/Login";
 import AdminDashboard from "./Pages/AdminPages/AdminDashboard";
 import AdminAllTeachers from "./Pages/AdminPages/AdminAllTeachers";
 import AdminAdmission from "./Pages/AdminPages/AdminAdmission";
+import AdminStudents from "./Pages/AdminPages/AdminStudents";
 import AdminTimetable from "./Pages/AdminPages/AdminTimetable";
 import AdminAttendence from "./Pages/AdminPages/AdminAttendence";
 import TeacherDashboard from "./Pages/TeacherPages/TeacherDashboard";
@@ -61,6 +62,7 @@ function App() {
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
         <Route path="/admin/teachers" element={<AdminAllTeachers />} />
         <Route path="/admin/admissions" element={<AdminAdmission />} />
+        <Route path="/admin/students" element={<AdminStudents />} />
         <Route path="/admin/timetable" element={<AdminTimetable />} />
         <Route path="/admin/attendance" element={<AdminAttendence />} />
         <Route path="/admin/homework" element={<AdminHomework />} />
