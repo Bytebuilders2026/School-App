@@ -20,6 +20,8 @@ import AdminTimetableAdjustments from "./Pages/AdminPages/AdminTimetableAdjustme
 import AdminAutoTimetable from "./Pages/AdminPages/AdminAutoTimetable";
 import AdminTeacherTimetable from "./Pages/AdminPages/AdminTeacherTimetable";
 import AdminAnnouncements from "./Pages/AdminPages/AdminAnnouncements";
+import AdminResults from "./Pages/AdminPages/AdminResults";
+import AdminReports from "./Pages/AdminPages/AdminReports";
 import AdminSidebar from "./Layouts/AdminSidebar";
 
 
@@ -74,6 +76,8 @@ function App() {
         <Route path="/admin/auto-timetable" element={<AdminAutoTimetable />} />
         <Route path="/admin/teacher-timetable" element={<AdminTeacherTimetable />} />
         <Route path="/admin/announcements" element={<AdminAnnouncements />} />
+        <Route path="/admin/results" element={<AdminResults />} />
+        <Route path="/admin/reports" element={<AdminReports />} />
 
 
         {/* Teacher Routes */}

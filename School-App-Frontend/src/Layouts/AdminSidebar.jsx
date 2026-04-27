@@ -150,7 +150,7 @@ export default function AdminSidebar({ children }) {
             {open ? <X /> : <Menu />}
           </button>
 
-          <h2 className="font-semibold text-gray-700">Admin Dashboard</h2>
+          <h2 className="font-bold text-slate-800 text-sm tracking-tight hidden md:block">Admin Dashboard</h2>
 
           <div className="flex items-center gap-4 relative">
             <button 
@@ -196,7 +196,7 @@ export default function AdminSidebar({ children }) {
         </div>
 
         {/* CONTENT */}
-        <div className="p-6 overflow-y-auto flex-1">{children}</div>
+        <div className="p-4 md:p-8 overflow-y-auto flex-1 custom-scrollbar">{children}</div>
       </div>
 
       {/* Overlay */}

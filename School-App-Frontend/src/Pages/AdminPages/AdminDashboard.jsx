@@ -2,36 +2,37 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import AdminSidebar from "../../Layouts/AdminSidebar";
 import { Users, GraduationCap, CheckCircle, XCircle, UserPlus, Calendar, ClipboardCheck } from "lucide-react";
-
 import { API_BASE_URL } from "../../apiConfig";
 
 const API = API_BASE_URL;
 
-// ─── Stat Card ───────────────────────────────────────────────────────────────
 function StatCard({ icon, label, value, sub, color, bg }) {
   return (
-    <div className={`${bg} rounded-2xl p-5 border ${color} flex items-center gap-4`}>
-      <div className="text-4xl">{icon}</div>
+    <div className={`${bg} rounded-2xl p-6 border ${color} shadow-sm`}>
+      <div className="flex justify-between items-start mb-4">
+        <div className="p-3 rounded-xl bg-white shadow-sm">
+          {icon}
+        </div>
+      </div>
       <div>
-        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{label}</p>
-        <p className="text-3xl font-bold text-gray-800 mt-0.5">{value ?? "—"}</p>
-        {sub && <p className="text-xs text-gray-400 mt-0.5">{sub}</p>}
+        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">{label}</p>
+        <h3 className="text-2xl font-bold text-gray-800">{value ?? "—"}</h3>
+        {sub && <p className="text-[11px] text-gray-400 mt-1">{sub}</p>}
       </div>
     </div>
   );
 }
 
-// ─── Attendance Progress Bar ──────────────────────────────────────────────────
 function AttendanceBar({ label, percent, color }) {
   return (
     <div>
       <div className="flex justify-between items-center mb-1">
-        <span className="text-xs font-medium text-gray-600">{label}</span>
+        <span className="text-[10px] font-bold text-gray-500 uppercase">{label}</span>
         <span className="text-xs font-bold text-gray-700">{percent}%</span>
       </div>
       <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
         <div
-          className={`h-full ${color} rounded-full transition-all duration-700`}
+          className={`h-full ${color} rounded-full transition-all duration-500`}
           style={{ width: `${Math.min(percent, 100)}%` }}
         />
       </div>
@@ -39,24 +40,18 @@ function AttendanceBar({ label, percent, color }) {
   );
 }
 
-// ─── Main ────────────────────────────────────────────────────────────────────
 export default function AdminDashboard() {
   const [data, setData] = useState(null);
-  const [perfData, setPerfData] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    const headers = { Authorization: `Bearer ${token}` };
-
-    Promise.all([
-      axios.get(`${API}/attendance/admin/dashboard`, { headers }),
-      axios.get(`${API}/performance/admin/stats`, { headers })
-    ]).then(([attRes, perfRes]) => {
-      setData(attRes.data.data);
-      setPerfData(perfRes.data.data);
+    axios.get(`${API}/attendance/admin/dashboard`, {
+      headers: { Authorization: `Bearer ${token}` }
+    }).then(res => {
+      setData(res.data.data);
     }).catch(err => {
-      console.error("Dashboard fetch error:", err);
+      console.log(err);
     }).finally(() => {
       setLoading(false);
     });
@@ -69,11 +64,8 @@ export default function AdminDashboard() {
   if (loading) {
     return (
       <AdminSidebar>
-        <div className="flex items-center justify-center h-64">
-          <div className="flex flex-col items-center gap-3">
-            <div className="w-10 h-10 border-4 border-[#89D4FF] border-t-transparent rounded-full animate-spin" />
-            <p className="text-gray-400 text-sm">Loading dashboard...</p>
-          </div>
+        <div className="flex items-center justify-center h-48">
+          <div className="w-8 h-8 border-4 border-[#89D4FF] border-t-transparent rounded-full animate-spin" />
         </div>
       </AdminSidebar>
     );
@@ -81,88 +73,51 @@ export default function AdminDashboard() {
 
   return (
     <AdminSidebar>
-      <div className="space-y-6">
+      <div className="space-y-6 pb-10">
 
         {/* ── Header ── */}
-        <div className="flex items-center justify-between">
+        <header className="flex justify-between items-end">
           <div>
             <h1 className="text-2xl font-bold text-gray-800">Dashboard</h1>
-            <p className="text-sm text-gray-400 mt-0.5">{todayName}</p>
+            <p className="text-gray-400 mt-1 font-medium text-sm flex items-center gap-2">
+              <Calendar size={16} /> {todayName}
+            </p>
           </div>
-          <div className="bg-[#89D4FF]/10 border border-[#89D4FF]/30 text-[#1a8fc7] text-sm font-semibold px-4 py-2 rounded-xl">
-           Admin Panel
+          <div className="bg-[#89D4FF] text-white px-4 py-2 rounded-xl font-bold text-xs uppercase tracking-wider shadow-sm">
+            Admin Panel
           </div>
-        </div>
+        </header>
 
-        {/* ── Stat Cards Row ── */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* ── Stats ── */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard
             label="Total Students" value={data?.totalStudents}
-            sub="Active students" bg="bg-blue-50" color="border-blue-100"
-            icon={<Users className="text-blue-500" size={32} />}
+            sub="All active enrollments" bg="bg-blue-50/50" color="border-blue-100"
+            icon={<Users className="text-blue-500" size={24} />}
           />
           <StatCard
-           label="Total Teachers" value={data?.totalTeachers}
-            sub="Active staff" bg="bg-indigo-50" color="border-indigo-100"
-            icon={<GraduationCap className="text-indigo-500" size={32} />}
+            label="Total Teachers" value={data?.totalTeachers}
+            sub="Academic staff" bg="bg-indigo-50/50" color="border-indigo-100"
+            icon={<GraduationCap className="text-indigo-500" size={24} />}
           />
           <StatCard
-             label="Present Today" value={data?.presentToday}
-            sub={`${data?.attendancePercent}% attendance`} bg="bg-green-50" color="border-green-100"
-            icon={<CheckCircle className="text-green-500" size={32} />}
+            label="Present Today" value={data?.presentToday}
+            sub={`${data?.attendancePercent}% attendance rate`} bg="bg-green-50/50" color="border-green-100"
+            icon={<CheckCircle className="text-green-500" size={24} />}
           />
           <StatCard
-             label="Alerts & Risk" value={perfData?.highRiskCount}
-            sub="High Risk Students" bg="bg-red-50" color="border-red-100"
-            icon={<XCircle className="text-red-500" size={32} />}
+            label="Absent Today" value={data?.absentToday}
+            sub="Requires follow-up" bg="bg-red-50/50" color="border-red-100"
+            icon={<XCircle className="text-red-500" size={24} />}
           />
         </div>
 
-        {/* ── Middle Row: Performance Analytics ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-           {/* Class-wise Performance Trends */}
-           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 overflow-hidden">
-             <h2 className="font-bold text-gray-700 text-sm mb-4 flex items-center gap-2"><GraduationCap className="text-[#89D4FF]" size={18}/> Class Performance Grades</h2>
-             <div className="space-y-4 max-h-60 overflow-y-auto">
-               {perfData?.classWisePerformance.map((c, i) => (
-                  <div key={i} className="flex justify-between items-center bg-gray-50/50 p-3 rounded-xl border border-gray-100">
-                     <span className="font-bold text-gray-700">Class {c.class}</span>
-                     <div className="flex gap-4 items-center text-sm">
-                        <span className="font-bold text-[#89D4FF]">Avg: {c.avgScore}%</span>
-                        <span className={`px-2 py-0.5 rounded-md text-xs font-bold ${c.highRisk > 0 ? "bg-red-100 text-red-600" : "bg-green-100 text-green-600"}`}>
-                           {c.highRisk} at Risk
-                        </span>
-                     </div>
-                  </div>
-               ))}
-             </div>
-           </div>
-
-           {/* Recent Performance Alerts */}
-           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 overflow-hidden">
-             <h2 className="font-bold text-gray-700 text-sm mb-4 flex items-center gap-2"><ClipboardCheck className="text-[#89D4FF]" size={18}/> Intelligent Alerts</h2>
-             <div className="space-y-3 max-h-60 overflow-y-auto pr-2">
-               {perfData?.recentAlerts?.length > 0 ? perfData.recentAlerts.map((alert) => (
-                  <div key={alert._id} className="flex items-start gap-3 bg-red-50/50 p-3 rounded-xl border border-red-100">
-                     <div className="mt-1 w-2 h-2 rounded-full bg-red-500 shrink-0"></div>
-                     <div>
-                        <p className="text-xs font-bold text-gray-800">{alert.title}</p>
-                        <p className="text-[10px] text-gray-500 mt-1 line-clamp-2 leading-relaxed">{alert.message}</p>
-                     </div>
-                  </div>
-               )) : <p className="text-gray-400 text-sm text-center py-8 hover:opacity-100 opacity-60">No recent risk alerts.</p>}
-             </div>
-           </div>
-        </div>
-
-        {/* ── Middle Row ── */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-
-          {/* Attendance Overview */}
-          <div className="lg:col-span-1 bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-5">
-            <h2 className="font-bold text-gray-700 text-sm">Today's Attendance Overview</h2>
-            <div className="flex items-center justify-center py-4">
-              <div className="relative w-32 h-32">
+          {/* Daily Attendance Chart */}
+          <div className="lg:col-span-1 bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+            <h2 className="font-bold text-gray-700 text-sm mb-6">Daily Attendance %</h2>
+            <div className="flex items-center justify-center mb-8">
+              <div className="relative">
                 <svg className="w-32 h-32 -rotate-90" viewBox="0 0 120 120">
                   <circle cx="60" cy="60" r="50" fill="none" stroke="#f0f0f0" strokeWidth="12" />
                   <circle
@@ -186,7 +141,7 @@ export default function AdminDashboard() {
                 color="bg-red-400"
               />
             </div>
-            <div className="grid grid-cols-3 gap-2 pt-2 border-t border-gray-100">
+            <div className="grid grid-cols-3 gap-2 pt-2 border-t border-gray-100 mt-4">
               {[
                 { l: "Present", v: data?.presentToday, c: "text-green-600" },
                 { l: "Absent", v: data?.absentToday, c: "text-red-500" },
@@ -206,7 +161,7 @@ export default function AdminDashboard() {
             {!data?.classWise?.length ? (
               <div className="flex items-center justify-center h-40 text-gray-400 text-sm">No attendance marked today</div>
             ) : (
-              <div className="space-y-3 max-h-60 overflow-y-auto pr-1">
+              <div className="space-y-3 max-h-60 overflow-y-auto pr-1 custom-scrollbar">
                 {data.classWise.map((c) => {
                   const pct = c.total > 0 ? Math.round((c.present / c.total) * 100) : 0;
                   return (
@@ -294,12 +249,12 @@ export default function AdminDashboard() {
         {/* ── Quick Links ── */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
           <h2 className="font-bold text-gray-700 text-sm mb-4">Quick Actions</h2>
-          <div className="grid grid-cols-2 md:grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {[
-              { label: "Add Student", path: "/admin/admissions", color: "bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-100", icon: <UserPlus size={28} /> },
-              { label: "Add Teacher", path: "/admin/teachers", color: "bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border-indigo-100", icon: <GraduationCap size={28} /> },
-              { label: "View Timetable",  path: "/admin/timetable", color: "bg-sky-50 hover:bg-sky-100 text-sky-700 border-sky-100", icon: <Calendar size={28} /> },
-              { label: "Attendance", path: "/admin/attendance", color: "bg-green-50 hover:bg-green-100 text-green-700 border-green-100", icon: <ClipboardCheck size={28} /> },
+              { label: "Add Student", path: "/admin/admissions", color: "bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-100", icon: <UserPlus size={24} /> },
+              { label: "Add Teacher", path: "/admin/teachers", color: "bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border-indigo-100", icon: <GraduationCap size={24} /> },
+              { label: "View Timetable",  path: "/admin/timetable", color: "bg-sky-50 hover:bg-sky-100 text-sky-700 border-sky-100", icon: <Calendar size={24} /> },
+              { label: "Attendance", path: "/admin/attendance", color: "bg-green-50 hover:bg-green-100 text-green-700 border-green-100", icon: <ClipboardCheck size={24} /> },
             ].map((q) => (
               <a
                 key={q.label}
@@ -307,7 +262,7 @@ export default function AdminDashboard() {
                 className={`${q.color} border rounded-xl p-4 flex flex-col items-center gap-2 text-center transition cursor-pointer`}
               >
                 <div>{q.icon}</div>
-                <span className="text-xs font-semibold">{q.label}</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider">{q.label}</span>
               </a>
             ))}
           </div>

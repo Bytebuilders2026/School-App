@@ -51,6 +51,7 @@ app.use("/api/doc-requests", require("./Routes/docRequestRoute"));
 app.use("/api/parent-portal", require("./Routes/parentPortalRoute"));
 app.use("/api/admin/fees", require("./Routes/adminFeeRoute"));
 app.use("/api/leave", require("./Routes/leaveRoute"));
+app.use("/api/reports", require("./Routes/reportRoute"));
 
 // 🔹 Global Error Handler
 app.use((err, req, res, next) => {
