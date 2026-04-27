@@ -60,9 +60,10 @@ export default function TeacherAttendance() {
     setStudents([]);
     setAttendanceData({});
     setLoading(true);
+    setError(""); // Clear previous errors
     
     try {
-      const res = await axios.get(`/students/by-class?cls=${selectedClass.class}&section=${selectedClass.section}`);
+      const res = await axios.get(`/students/by-class?cls=${cls.class}&section=${cls.section}`);
       const fetchedStudents = res.data || [];
       setStudents(fetchedStudents);
       

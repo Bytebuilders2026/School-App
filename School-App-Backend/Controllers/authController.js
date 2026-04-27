@@ -14,7 +14,12 @@ exports.login = async (req, res) => {
 
     // 🔹 Step 1: Find user based on role
     if (role === "student") {
-      const studentProfile = await Student.findOne({ rollNumber: identifier }).populate("user");
+      const studentProfile = await Student.findOne({ 
+        $or: [
+          { rollNumber: identifier },
+          { email: identifier }
+        ] 
+      }).populate("user");
       if (studentProfile) {
         user = studentProfile.user;
       }

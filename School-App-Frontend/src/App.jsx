@@ -29,6 +29,9 @@ import AdminSidebar from "./Layouts/AdminSidebar";
 import TeacherMarks from "./Pages/TeacherPages/TeacherMarks";
 import TeacherDocManagement from "./Pages/TeacherPages/TeacherDocManagement";
 import TeacherLeavePanel from "./Pages/TeacherPages/TeacherLeavePanel";
+import TeacherMessage from "./Pages/TeacherPages/TeacherMessage";
+import TeacherMaterial from "./Pages/TeacherPages/TeacherMaterial";
+
 
 
 // Student Routes
@@ -43,6 +46,7 @@ import StudentPerformance from "./Pages/StudentPages/StudentPerformance";
 import StudentResult from "./Pages/StudentPages/StudentResult";
 import StudentDocRequest from "./Pages/StudentPages/StudentDocRequest";
 import StudentLeavePanel from "./Pages/StudentPages/StudentLeavePanel";
+import StudentMaterial from "./Pages/StudentPages/StudentMaterial";
 
 
 // Parent Routes
@@ -53,6 +57,7 @@ import ParentMarks from "./Pages/ParentPages/ParentMarks";
 import ParentRemarks from "./Pages/ParentPages/ParentRemarks";
 import ParentFees from "./Pages/ParentPages/ParentFees";
 import ParentSidebar from "./Layouts/ParentSidebar";
+import ParentAnnouncements from "./Pages/ParentPages/ParentAnnouncements";
 
 
 function App() {
@@ -88,6 +93,9 @@ function App() {
         <Route path="/teacher/marks" element={<TeacherMarks />} />
         <Route path="/teacher/doc-requests" element={<TeacherDocManagement />} />
         <Route path="/teacher/leave-panel" element={<TeacherLeavePanel />} />
+        <Route path="/teacher/message" element={<TeacherMessage />} />
+        <Route path="/teacher/materials" element={<TeacherMaterial />} />
+
 
 
         {/* Student Routes */}
@@ -102,6 +110,7 @@ function App() {
         <Route path="/student/result" element={<StudentResult />} />
         <Route path="/student/doc-requests" element={<StudentDocRequest />} />
         <Route path="/student/leave-panel" element={<StudentLeavePanel />} />
+        <Route path="/student/materials" element={<StudentMaterial />} />
 
 
         {/* Parent Routes */}
@@ -111,6 +120,7 @@ function App() {
         <Route path="/parent/marks" element={<ParentSidebar><ParentMarks /></ParentSidebar>} />
         <Route path="/parent/remarks" element={<ParentSidebar><ParentRemarks /></ParentSidebar>} />
         <Route path="/parent/fees" element={<ParentSidebar><ParentFees /></ParentSidebar>} />
+        <Route path="/parent/announcements" element={<ParentSidebar><ParentAnnouncements /></ParentSidebar>} />
 
       </Routes>
     </Router>

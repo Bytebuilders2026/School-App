@@ -5,11 +5,12 @@ import { User, Activity, BookOpen, Clock } from "lucide-react";
 
 import { API_BASE_URL } from "../../apiConfig";
 
-axios.defaults.baseURL = API_BASE_URL;
+import axiosInstance from "../../axiosInstance";
 
 const StudentDashboard = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState("");
 
   useEffect(() => {
     fetchDashboard();
@@ -17,13 +18,11 @@ const StudentDashboard = () => {
 
   const fetchDashboard = async () => {
     try {
-      const token = localStorage.getItem("token");
-      const res = await axios.get("/student/dashboard", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await axiosInstance.get("/student/dashboard");
       setData(res.data);
     } catch (err) {
       console.error(err);
+      setErrorMsg(err.response?.data?.message || err.message || "Failed to load dashboard");
     } finally {
       setLoading(false);
     }
@@ -37,7 +36,16 @@ const StudentDashboard = () => {
     </StudentSidebar>
   );
 
-  if (!data || !data.student) return <StudentSidebar><p>Error loading dashboard</p></StudentSidebar>;
+  if (errorMsg || !data || !data.student) return (
+    <StudentSidebar>
+      <div className="flex justify-center items-center h-[70vh]">
+        <div className="bg-red-50 text-red-500 p-6 rounded-2xl border border-red-100 text-center">
+          <p className="font-bold text-lg mb-2">Error loading dashboard</p>
+          <p className="text-sm">{errorMsg}</p>
+        </div>
+      </div>
+    </StudentSidebar>
+  );
 
   const { student, todayClasses, recentHomework } = data;
 

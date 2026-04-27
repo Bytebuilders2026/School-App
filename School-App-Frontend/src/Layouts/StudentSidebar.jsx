@@ -82,6 +82,7 @@ export default function StudentSidebar({ children }) {
     { name: "Message", path: "/student/message", icon: MessageSquare },
     { name: "Performance", path: "/student/performance", icon: TrendingUp },
     { name: "Academic Result", path: "/student/result", icon: FileText },
+    { name: "Study Material", path: "/student/materials", icon: BookOpen },
     { name: "Doc Requests", path: "/student/doc-requests", icon: FileText },
     {
       name: "Leave Portal",

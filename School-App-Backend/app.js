@@ -52,6 +52,14 @@ app.use("/api/parent-portal", require("./Routes/parentPortalRoute"));
 app.use("/api/admin/fees", require("./Routes/adminFeeRoute"));
 app.use("/api/leave", require("./Routes/leaveRoute"));
 app.use("/api/reports", require("./Routes/reportRoute"));
+app.use("/api/messages", require("./Routes/messageRoute"));
+app.use("/api/materials", require("./Routes/materialRoute"));
+
+// Serve uploaded files statically
+const path = require("path");
+app.use("/uploads", require("express").static(path.join(__dirname, "uploads")));
+
+
 
 // 🔹 Global Error Handler
 app.use((err, req, res, next) => {

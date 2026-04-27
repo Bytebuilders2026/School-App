@@ -86,11 +86,11 @@ export default function ParentAttendance() {
             onClick={() => handleChildChange(child._id)}
             className={`flex items-center gap-3 px-6 py-4 rounded-2xl transition-all border ${
               selectedChildId === child._id 
-              ? "bg-white border-indigo-600 text-indigo-700 shadow-xl shadow-indigo-100/50 scale-105" 
-              : "bg-gray-50 border-gray-100 text-gray-500 hover:bg-white hover:border-indigo-200"
+              ? "bg-white border-[#8884d8] text-[#7169c9] shadow-xl shadow-[#8884d8]/10 scale-105" 
+              : "bg-gray-50 border-gray-100 text-gray-500 hover:bg-white hover:border-[#8884d8]/30"
             }`}
           >
-            <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold ${selectedChildId === child._id ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-400'}`}>
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold ${selectedChildId === child._id ? 'bg-[#8884d8] text-white' : 'bg-gray-200 text-gray-400'}`}>
               {child.name[0]}
             </div>
             <div className="text-left">
@@ -124,12 +124,12 @@ export default function ParentAttendance() {
               </div>
            </div>
 
-           <div className="bg-indigo-600 p-8 rounded-[2.5rem] shadow-2xl shadow-indigo-100 text-white space-y-4">
+           <div className="bg-[#8884d8] p-8 rounded-[2.5rem] shadow-2xl shadow-[#8884d8]/10 text-white space-y-4">
               <div className="flex items-center gap-3">
                  <Calendar className="opacity-50" />
                  <p className="text-sm font-bold">Monthly Policy</p>
               </div>
-              <p className="text-xs text-indigo-100 leading-relaxed font-medium">
+              <p className="text-xs text-[#8884d8]/20 leading-relaxed font-medium">
                 Consistent attendance above 75% is required for mid-term eligibility. Please ensure timely leaves.
               </p>
            </div>
@@ -140,7 +140,7 @@ export default function ParentAttendance() {
           <div className="bg-white rounded-[2.5rem] p-8 md:p-10 shadow-xl border border-gray-50 min-h-[500px]">
              <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-3">
-                   <div className="p-3 bg-gray-50 text-indigo-600 rounded-2xl">
+                   <div className="p-3 bg-gray-50 text-[#8884d8] rounded-2xl">
                       <Clock size={20} />
                    </div>
                    <h3 className="text-xl font-bold text-gray-800">Recent Logs</h3>
@@ -150,14 +150,14 @@ export default function ParentAttendance() {
                    <input 
                     type="text" 
                     placeholder="Search logs..." 
-                    className="w-full bg-gray-50 border-none rounded-2xl py-3 pl-10 pr-4 text-xs font-bold text-gray-600 focus:ring-2 focus:ring-indigo-100 transition-all outline-none"
+                    className="w-full bg-gray-50 border-none rounded-2xl py-3 pl-10 pr-4 text-xs font-bold text-gray-600 focus:ring-2 focus:ring-[#8884d8]/20 transition-all outline-none"
                    />
                 </div>
              </div>
 
              {loading ? (
                <div className="flex flex-col items-center justify-center h-64">
-                  <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600"></div>
+                  <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#8884d8]"></div>
                </div>
              ) : attendanceData.length === 0 ? (
                <div className="flex flex-col items-center justify-center h-64 text-center">
@@ -169,7 +169,7 @@ export default function ParentAttendance() {
              ) : (
                <div className="space-y-4">
                   {attendanceData.map((log, i) => (
-                    <div key={i} className="flex items-center justify-between p-6 bg-gray-50/50 rounded-[2rem] border border-gray-50 hover:bg-white hover:border-indigo-100 hover:shadow-lg hover:shadow-indigo-50/50 transition-all duration-300">
+                    <div key={i} className="flex items-center justify-between p-6 bg-gray-50/50 rounded-[2rem] border border-gray-50 hover:bg-white hover:border-[#8884d8]/20 hover:shadow-lg hover:shadow-[#8884d8]/5 transition-all duration-300">
                        <div className="flex items-center gap-6">
                           <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-xl font-black ${
                             log.status === 'present' ? 'bg-emerald-100 text-emerald-600' :

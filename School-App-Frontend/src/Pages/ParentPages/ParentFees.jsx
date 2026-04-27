@@ -19,7 +19,9 @@ export default function ParentFees() {
   const [feeData, setFeeData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [paying, setPaying] = useState(false);
-  const [paymentStep, setPaymentStep] = useState("selection"); // selection, method, simulate, success
+  const [paymentStep, setPaymentStep] = useState("selection"); // selection, method, details, simulate, success
+  const [selectedMethod, setSelectedMethod] = useState(null);
+  const [methodData, setMethodData] = useState({});
 
   useEffect(() => {
     fetchInitialData();
@@ -70,7 +72,7 @@ export default function ParentFees() {
 
     try {
       await axios.post(`${API_BASE_URL}/parent-portal/pay-fee/${pendingFee._id}`, {
-        method: "upi",
+        method: selectedMethod?.id || "upi",
         amount: pendingFee.remaining
       }, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
@@ -88,9 +90,16 @@ export default function ParentFees() {
 
   if (loading && !feeData) return (
     <div className="flex justify-center items-center h-full">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#8884d8]"></div>
     </div>
   );
+
+  const paymentMethods = [
+    { id: 'upi', name: 'UPI', sub: 'GPay, PhonePe, Paytm', icon: QrCode },
+    { id: 'credit', name: 'Credit Card', sub: 'Visa, Mastercard, Amex', icon: CreditCard },
+    { id: 'debit', name: 'Debit Card', sub: 'All Indian Banks', icon: Wallet },
+    { id: 'netbanking', name: 'Net Banking', sub: 'Secure Bank Login', icon: History },
+  ];
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
@@ -127,7 +136,7 @@ export default function ParentFees() {
                {/* Invoice Header */}
                <div className="p-10 border-b border-gray-50 flex flex-col md:flex-row justify-between items-start gap-6 relative">
                   <div className="space-y-4">
-                     <div className="w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center text-white font-bold text-2xl">B</div>
+                     <div className="w-16 h-16 bg-[#8884d8] rounded-2xl flex items-center justify-center text-white font-bold text-2xl">B</div>
                      <div>
                         <h2 className="text-2xl font-black text-gray-800 tracking-tight">BYTE BUILDERS SCHOOL</h2>
                         <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Official Fee Invoice</p>
@@ -203,14 +212,14 @@ export default function ParentFees() {
 
                {/* Action Footer */}
                {currentFee.status !== 'paid' && (
-                 <div className="px-10 py-8 bg-indigo-50/50 flex flex-col md:flex-row items-center gap-6 justify-between border-t border-indigo-100">
-                    <div className="flex items-center gap-3 text-indigo-700">
+                 <div className="px-10 py-8 bg-[#8884d8]/10/50 flex flex-col md:flex-row items-center gap-6 justify-between border-t border-[#8884d8]/20">
+                    <div className="flex items-center gap-3 text-[#7169c9]">
                        <Calendar size={20} />
                        <p className="text-sm font-bold">Please complete payment to avoid further fines.</p>
                     </div>
                     <button 
                       onClick={() => setPaymentStep("method")}
-                      className="bg-indigo-600 hover:bg-indigo-700 text-white font-black px-8 py-4 rounded-2xl shadow-xl shadow-indigo-200 transition-all flex items-center gap-3 active:scale-95"
+                      className="bg-[#8884d8] hover:bg-[#7169c9] text-white font-black px-8 py-4 rounded-2xl shadow-xl shadow-[#8884d8]/20 transition-all flex items-center gap-3 active:scale-95"
                     >
                        Pay Securely <ArrowRight size={20} />
                     </button>
@@ -228,12 +237,12 @@ export default function ParentFees() {
           {/* HISTORY SECTION */}
           <div className="bg-white rounded-[2rem] p-8 shadow-xl shadow-gray-100/50 border border-gray-50">
              <div className="flex items-center gap-3 mb-8">
-                <History size={20} className="text-indigo-600" />
+                <History size={20} className="text-[#8884d8]" />
                 <h3 className="text-xl font-bold text-gray-800">Payment History</h3>
              </div>
              <div className="space-y-4">
                 {feeData?.filter(f => f.status === 'paid').map((h, idx) => (
-                  <div key={idx} className="flex items-center justify-between p-5 bg-gray-50 rounded-2xl border border-gray-100 group hover:border-indigo-100 transition-colors">
+                  <div key={idx} className="flex items-center justify-between p-5 bg-gray-50 rounded-2xl border border-gray-100 group hover:border-[#8884d8]/20 transition-colors">
                      <div className="flex items-center gap-4">
                         <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-emerald-600 shadow-sm">
                            <CheckCircle size={20} />
@@ -245,7 +254,7 @@ export default function ParentFees() {
                      </div>
                      <div className="text-right flex items-center gap-6">
                         <p className="text-lg font-black text-gray-900">₹{h.totalWithFine}</p>
-                        <button className="text-indigo-500 p-2 hover:bg-white rounded-lg transition">
+                        <button className="text-[#8884d8]/80 p-2 hover:bg-white rounded-lg transition">
                            <Download size={18} />
                         </button>
                      </div>
@@ -260,15 +269,15 @@ export default function ParentFees() {
         <div className="lg:col-span-1">
           <div className="bg-white rounded-[2.5rem] shadow-xl border border-gray-50 p-8 sticky top-8 space-y-8">
              <h3 className="text-xl font-black text-gray-800 flex items-center gap-3">
-                <CreditCard size={20} className="text-indigo-600" />
+                <CreditCard size={20} className="text-[#8884d8]" />
                 Payment Portal
              </h3>
 
              {paymentStep === "selection" && (
                 <div className="space-y-4">
-                   <div className="p-10 bg-indigo-50 rounded-[2.5rem] text-center space-y-2">
-                      <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Total to Pay</p>
-                      <p className="text-5xl font-black text-indigo-700 tracking-tighter">
+                   <div className="p-10 bg-[#8884d8]/10 rounded-[2.5rem] text-center space-y-2">
+                      <p className="text-[10px] font-black text-[#8884d8]/60 uppercase tracking-widest">Total to Pay</p>
+                      <p className="text-5xl font-black text-[#7169c9] tracking-tighter">
                         ₹{currentFee && currentFee.status !== 'paid' ? currentFee.remaining : "0"}
                       </p>
                    </div>
@@ -276,7 +285,7 @@ export default function ParentFees() {
                    <button 
                     disabled={!currentFee || currentFee.status === 'paid'}
                     onClick={() => setPaymentStep("method")}
-                    className="w-full py-5 bg-indigo-600 hover:bg-indigo-700 text-white font-black rounded-2xl shadow-xl shadow-indigo-100 transition-all disabled:opacity-50"
+                    className="w-full py-5 bg-[#8884d8] hover:bg-[#7169c9] text-white font-black rounded-2xl shadow-xl shadow-[#8884d8]/10 transition-all disabled:opacity-50"
                    >
                      Initialize Payment
                    </button>
@@ -285,57 +294,140 @@ export default function ParentFees() {
 
              {paymentStep === "method" && (
                 <div className="space-y-6">
-                   <p className="text-sm font-bold text-gray-500 mb-2">Choose Payment Method</p>
+                   <div>
+                     <p className="text-sm font-bold text-gray-800">Select Payment Method</p>
+                     <p className="text-[10px] text-gray-400 font-medium">Choose your preferred way to pay</p>
+                   </div>
                    <div className="space-y-3">
-                      {[
-                        { id: 'upi', name: 'UPI (QR Scan / VPA)', icon: QrCode },
-                        { id: 'card', name: 'Credit / Debit Card', icon: CreditCard },
-                      ].map(m => (
+                      {paymentMethods.map(m => (
                         <button 
                           key={m.id}
-                          onClick={() => setPaymentStep("simulate")}
-                          className="w-full p-5 bg-gray-50 hover:bg-white border border-gray-100 hover:border-indigo-600 rounded-2xl flex items-center gap-4 transition-all group"
+                          onClick={() => {
+                            setSelectedMethod(m);
+                            setPaymentStep("details");
+                          }}
+                          className="w-full p-4 bg-gray-50 hover:bg-white border border-transparent hover:border-[#8884d8] rounded-2xl flex items-center gap-4 transition-all group"
                         >
-                          <div className="w-12 h-12 bg-white group-hover:bg-indigo-50 rounded-xl flex items-center justify-center text-gray-400 group-hover:text-indigo-600 shadow-sm transition-colors">
-                             <m.icon size={22} />
+                          <div className="w-10 h-10 bg-white group-hover:bg-[#8884d8]/10 rounded-xl flex items-center justify-center text-gray-400 group-hover:text-[#8884d8] shadow-sm transition-colors">
+                             <m.icon size={20} />
                           </div>
-                          <span className="font-bold text-gray-700 group-hover:text-gray-900 flex-1 text-left">{m.name}</span>
-                          <ChevronRight size={14} className="opacity-0 group-hover:opacity-100 transition-all translate-x-3 group-hover:translate-x-0" />
+                          <div className="flex-1 text-left">
+                            <p className="font-bold text-gray-800 text-sm">{m.name}</p>
+                            <p className="text-[9px] text-gray-400 font-medium uppercase tracking-tighter">{m.sub}</p>
+                          </div>
+                          <ChevronRight size={14} className="opacity-0 group-hover:opacity-100 transition-all translate-x-3 group-hover:translate-x-0 text-[#8884d8]" />
                         </button>
                       ))}
                    </div>
                    <button 
                     onClick={() => setPaymentStep("selection")}
-                    className="w-full text-xs font-bold text-gray-400 hover:text-gray-600 transition"
+                    className="w-full py-3 text-xs font-black text-gray-400 hover:text-gray-600 transition uppercase tracking-widest"
                    >
-                     Go Back
+                     Cancel
                    </button>
                 </div>
+             )}
+
+             {paymentStep === "details" && selectedMethod && (
+               <div className="space-y-6">
+                  <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                    <selectedMethod.icon size={18} className="text-[#8884d8]" />
+                    <div>
+                      <p className="text-xs font-bold text-gray-800">{selectedMethod.name}</p>
+                      <button onClick={() => setPaymentStep("method")} className="text-[9px] text-[#8884d8] font-bold underline">Change Method</button>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    {selectedMethod.id === 'upi' && (
+                      <div className="space-y-3">
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Enter VPA / UPI ID</label>
+                        <input 
+                          type="text" 
+                          placeholder="e.g. user@okaxis" 
+                          className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl text-sm font-bold focus:ring-2 focus:ring-[#8884d8]/20 focus:border-[#8884d8] outline-none transition-all"
+                          value={methodData.upiId || ''}
+                          onChange={(e) => setMethodData({...methodData, upiId: e.target.value})}
+                        />
+                      </div>
+                    )}
+
+                    {(selectedMethod.id === 'credit' || selectedMethod.id === 'debit') && (
+                      <div className="space-y-4">
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Card Number</label>
+                          <input 
+                            type="text" 
+                            placeholder="xxxx xxxx xxxx xxxx" 
+                            className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl text-sm font-bold focus:ring-2 focus:ring-[#8884d8]/20 focus:border-[#8884d8] outline-none transition-all"
+                          />
+                        </div>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="space-y-2">
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Expiry</label>
+                            <input type="text" placeholder="MM/YY" className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl text-sm font-bold focus:ring-2 focus:ring-[#8884d8]/20 focus:border-[#8884d8] outline-none" />
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">CVV</label>
+                            <input type="password" placeholder="***" className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl text-sm font-bold focus:ring-2 focus:ring-[#8884d8]/20 focus:border-[#8884d8] outline-none" />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {selectedMethod.id === 'netbanking' && (
+                      <div className="space-y-3">
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Select Bank</label>
+                        <select className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl text-sm font-bold focus:ring-2 focus:ring-[#8884d8]/20 focus:border-[#8884d8] outline-none">
+                          <option>State Bank of India</option>
+                          <option>HDFC Bank</option>
+                          <option>ICICI Bank</option>
+                          <option>Axis Bank</option>
+                          <option>Kotak Bank</option>
+                        </select>
+                      </div>
+                    )}
+                  </div>
+
+                  <button 
+                    onClick={() => setPaymentStep("simulate")}
+                    className="w-full py-4 bg-[#8884d8] hover:bg-[#7169c9] text-white font-black rounded-2xl shadow-xl shadow-[#8884d8]/20 transition-all flex items-center justify-center gap-2"
+                  >
+                    Pay ₹{currentFee?.remaining}
+                  </button>
+               </div>
              )}
 
              {paymentStep === "simulate" && (
                 <div className="space-y-8 text-center py-6">
                    <div className="relative mx-auto w-48 h-48">
-                      <div className="absolute inset-0 bg-indigo-600 rounded-3xl opacity-5 animate-pulse"></div>
-                      <div className="relative h-full flex items-center justify-center border-2 border-dashed border-indigo-200 rounded-3xl">
-                         <QrCode size={100} className="text-indigo-600 opacity-20" />
+                      <div className="absolute inset-0 bg-[#8884d8] rounded-3xl opacity-5 animate-pulse"></div>
+                      <div className="relative h-full flex items-center justify-center border-2 border-dashed border-[#8884d8]/20 rounded-3xl">
+                         {selectedMethod?.id === 'upi' ? <QrCode size={100} className="text-[#8884d8] opacity-20" /> : <CreditCard size={100} className="text-[#8884d8] opacity-20" />}
                          <div className="absolute inset-x-0 bottom-6 flex justify-center">
-                            <div className="text-[10px] font-black text-indigo-600 bg-white px-3 py-1 rounded-full shadow-md">SCAN TO PAY</div>
+                            <div className="text-[10px] font-black text-[#8884d8] bg-white px-3 py-1 rounded-full shadow-md">
+                              {selectedMethod?.id === 'upi' ? "SCAN TO PAY" : "AUTHORIZING"}
+                            </div>
                          </div>
                       </div>
                    </div>
 
                    <div className="space-y-2">
-                       <h4 className="text-xl font-bold text-gray-800">Processing Transaction...</h4>
-                       <p className="text-xs text-gray-400 font-medium">Please do not close this window.</p>
+                       <h4 className="text-xl font-bold text-gray-800">Processing...</h4>
+                       <p className="text-xs text-gray-400 font-medium italic">Communicating with {selectedMethod?.name} Gateway</p>
                    </div>
 
                    <button 
                     onClick={handlePayment}
                     disabled={paying}
-                    className="w-full py-5 bg-indigo-600 hover:bg-indigo-700 text-white font-black rounded-2xl shadow-xl shadow-indigo-100 transition-all flex items-center justify-center gap-2"
+                    className="w-full py-5 bg-[#8884d8] hover:bg-[#7169c9] text-white font-black rounded-2xl shadow-xl shadow-[#8884d8]/20 transition-all flex items-center justify-center gap-2"
                    >
-                     {paying ? "Verifying Payment..." : "Simulate Success"}
+                     {paying ? (
+                       <div className="flex items-center gap-3">
+                         <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                         Verifying...
+                       </div>
+                     ) : "Authorize Payment"}
                    </button>
                 </div>
              )}
@@ -352,10 +444,14 @@ export default function ParentFees() {
                        </p>
                    </div>
                    <button 
-                    onClick={() => setPaymentStep("selection")}
+                    onClick={() => {
+                      setPaymentStep("selection");
+                      setMethodData({});
+                      setSelectedMethod(null);
+                    }}
                     className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-2xl shadow-xl shadow-emerald-100 transition-all"
                    >
-                     Done
+                     Back to Fees
                    </button>
                 </div>
              )}
@@ -366,3 +462,19 @@ export default function ParentFees() {
     </div>
   );
 }
+
+const ChevronRight = ({ size, className }) => (
+  <svg 
+    width={size} 
+    height={size} 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" 
+    strokeWidth="2.5" 
+    strokeLinecap="round" 
+    strokeLinejoin="round" 
+    className={className}
+  >
+    <path d="m9 18 6-6-6-6"/>
+  </svg>
+);

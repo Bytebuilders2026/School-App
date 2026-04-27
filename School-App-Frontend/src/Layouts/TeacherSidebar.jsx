@@ -109,6 +109,11 @@ export default function TeacherSidebar({ children }) {
       icon: MessageSquare,
     },
     {
+      name: "Study Material",
+      path: "/teacher/materials",
+      icon: FileText,
+    },
+    {
       name: "Doc Requests",
       path: "/teacher/doc-requests",
       icon: ClipboardCheck,

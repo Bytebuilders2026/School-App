@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { API_BASE_URL } from "../apiConfig";
 import {
   LayoutDashboard,
   Users,
@@ -9,16 +11,11 @@ import {
   Wallet,
   LogOut,
   Bell,
-  ChevronRight,
-  Menu,
-  X,
+  Megaphone,
 } from "lucide-react";
-import axios from "axios";
-import { API_BASE_URL } from "../apiConfig";
 
 export default function ParentSidebar({ children }) {
   const navigate = useNavigate();
-  const [isOpen, setIsOpen] = useState(true);
   const [notifications, setNotifications] = useState([]);
   const [showNotif, setShowNotif] = useState(false);
   const isFirstFetch = useRef(true);
@@ -67,140 +64,137 @@ export default function ParentSidebar({ children }) {
   };
 
   const menuItems = [
-    { name: "Dashboard", path: "/parent/dashboard", icon: LayoutDashboard, color: "text-blue-500" },
-    { name: "My Children", path: "/parent/children", icon: Users, color: "text-indigo-500" },
-    { name: "Attendance", path: "/parent/attendance", icon: ClipboardCheck, color: "text-emerald-500" },
-    { name: "Academic Result", path: "/parent/marks", icon: BarChart3, color: "text-amber-500" },
-    { name: "Teacher Remarks", path: "/parent/remarks", icon: MessageSquareQuote, color: "text-rose-500" },
-    { name: "Fee Management", path: "/parent/fees", icon: Wallet, color: "text-violet-500" },
+    { name: "Dashboard", path: "/parent/dashboard", icon: LayoutDashboard },
+    { name: "My Children", path: "/parent/children", icon: Users },
+    { name: "Attendance", path: "/parent/attendance", icon: ClipboardCheck },
+    { name: "Academic Result", path: "/parent/marks", icon: BarChart3 },
+    { name: "Teacher Remarks", path: "/parent/remarks", icon: MessageSquareQuote },
+    { name: "Fee Management", path: "/parent/fees", icon: Wallet },
+    { name: "Announcements", path: "/parent/announcements", icon: Megaphone },
   ];
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("role");
-    navigate("/");
+  const handleMenuClick = (item) => {
+    if (item.isLogout) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("role");
+      navigate("/");
+    } else {
+      navigate(item.path);
+    }
   };
 
   const currentPath = window.location.pathname;
 
   return (
-    <div className="flex h-screen bg-[#F8F9FD]">
-      {/* ── MOBILE TOGGLE ── */}
-      <button 
-        className="md:hidden fixed top-4 right-4 z-[60] bg-white p-2 rounded-xl shadow-lg border border-gray-100"
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        {isOpen ? <X size={20} /> : <Menu size={20} />}
-      </button>
-
-      {/* ── SIDEBAR ── */}
-      <div className={`fixed md:relative flex flex-col h-full bg-white shadow-2xl transition-all duration-300 z-50 ${isOpen ? "w-72" : "w-0 md:w-20 overflow-hidden"}`}>
-        <div className="flex items-center gap-3 px-6 py-8">
-          <div className="w-10 h-10 bg-indigo-600 rounded-2xl flex items-center justify-center text-white font-bold shadow-lg shadow-indigo-200">B</div>
-          {isOpen && <h1 className="text-xl font-bold text-gray-800 tracking-tight">ByteBuilders</h1>}
+    <div className="flex h-[100vh] bg-[#F4F7FB] md:bg-[#F2EDFF]">
+      {/* ── DESKTOP SIDEBAR ── */}
+      <div className="hidden md:flex flex-col w-64 bg-white shadow-xl h-full z-50">
+        <div className="px-6 py-4 border-b border-gray-200">
+          <h1 className="text-2xl font-bold text-[#8884d8]">ByteBuilders</h1>
         </div>
-
-        <nav className="flex-1 px-4 space-y-2">
+        <div className="p-4 space-y-2 flex-1 overflow-y-auto">
           {menuItems.map((item, i) => {
             const Icon = item.icon;
             const isActive = currentPath === item.path;
             return (
               <div
                 key={i}
-                onClick={() => navigate(item.path)}
-                className={`group flex items-center gap-4 px-4 py-3.5 rounded-2xl cursor-pointer transition-all duration-200 ${
-                  isActive 
-                  ? "bg-indigo-50 text-indigo-700 shadow-sm" 
-                  : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
+                onClick={() => handleMenuClick(item)}
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition ${
+                  isActive ? "bg-[#8884d8] text-white shadow-md font-bold" : "text-gray-600 hover:bg-gray-50"
                 }`}
               >
-                <div className={`transition-colors ${isActive ? "text-indigo-600" : "group-hover:text-indigo-500"}`}>
-                  <Icon size={20} />
-                </div>
-                {isOpen && (
-                  <div className="flex-1 flex justify-between items-center">
-                    <span className="font-semibold text-sm">{item.name}</span>
-                    {isActive && <ChevronRight size={14} className="opacity-50" />}
-                  </div>
-                )}
+                <Icon size={18} />
+                <span>{item.name}</span>
               </div>
             );
           })}
-        </nav>
-
-        <div className="p-4 border-t border-gray-50">
-          <div 
-            onClick={handleLogout}
-            className="flex items-center gap-4 px-4 py-4 rounded-2xl cursor-pointer text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all"
-          >
-            <LogOut size={20} />
-            {isOpen && <span className="font-bold text-sm">Sign Out</span>}
+          
+          <div className="pt-4 mt-4 border-t border-gray-100">
+             <div
+               onClick={() => handleMenuClick({ isLogout: true })}
+               className="flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition text-gray-500 hover:text-red-500 hover:bg-red-50"
+             >
+               <LogOut size={18} />
+               <span className="font-bold">Sign Out</span>
+             </div>
           </div>
         </div>
       </div>
 
-      {/* ── MAIN CONTENT ── */}
-      <div className="flex-1 flex flex-col h-full overflow-hidden">
+      {/* ── MAIN AREA ── */}
+      <div className="flex-1 flex flex-col h-[100vh] overflow-hidden relative">
         {/* TOPBAR */}
-        <header className="flex items-center justify-between bg-white px-8 py-5 border-b border-gray-100 z-40">
-           <div className="flex items-center gap-4">
-              <h2 className="text-lg font-bold text-gray-800">Parent Portal</h2>
-              <div className="px-3 py-1 bg-indigo-50 text-indigo-600 text-[10px] font-bold rounded-full uppercase tracking-widest">Live System</div>
-           </div>
+        <div className="flex items-center justify-between bg-white px-4 md:px-6 py-4 shadow-sm z-40 relative">
+          <div className="md:hidden flex items-center gap-2">
+            <div className="w-8 h-8 bg-[#8884d8] rounded-lg flex items-center justify-center text-white font-bold">B</div>
+            <h1 className="text-lg font-bold text-gray-800 tracking-tight">ByteBuilders</h1>
+          </div>
+          <h2 className="hidden md:block font-semibold text-gray-700">Parent Portal</h2>
 
-           <div className="flex items-center gap-6">
-              <div className="relative">
-                <button 
-                  onClick={() => setShowNotif(!showNotif)}
-                  className="p-2.5 bg-gray-50 text-gray-500 hover:text-indigo-600 rounded-xl transition relative"
-                >
-                  <Bell size={20} />
-                  {notifications.filter(n => !n.isRead).length > 0 && (
-                    <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
-                  )}
-                </button>
-                {/* Notification Dropdown */}
-                {showNotif && (
-                   <div className="absolute top-14 right-0 w-80 bg-white rounded-2xl shadow-2xl border border-gray-100 p-4 z-[100] animate-in fade-in slide-in-from-top-2">
-                      <div className="flex justify-between items-center mb-4 pb-2 border-b border-gray-50">
-                         <h3 className="font-bold text-gray-800 text-sm">Notifications</h3>
-                         <button onClick={markAllAsRead} className="text-[10px] text-indigo-600 font-bold hover:underline cursor-pointer">Mark all as read</button>
-                      </div>
-                      <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
-                         {notifications.length === 0 ? (
-                            <div className="flex flex-col items-center py-8 opacity-40">
-                              <Bell size={32} className="mb-2" />
-                              <p className="text-xs text-gray-600 font-medium">No recent notifications</p>
-                            </div>
-                         ) : notifications.map(alert => (
-                            <div key={alert._id} className={`p-3 rounded-xl border text-left transition-all ${alert.isRead ? 'bg-gray-50 border-gray-100 opacity-60' : 'bg-indigo-50/50 border-indigo-100 shadow-sm'}`}>
-                               <div className="flex justify-between items-start">
-                                 <p className={`text-xs font-bold leading-tight ${alert.isRead ? 'text-gray-700' : 'text-indigo-600'}`}>{alert.title}</p>
-                                 {!alert.isRead && <span className="w-2 h-2 bg-indigo-600 rounded-full"></span>}
-                               </div>
-                               <p className="text-[11px] text-gray-500 mt-1.5 leading-normal">{alert.message}</p>
-                               <p className="text-[9px] text-gray-400 mt-2 font-medium">{new Date(alert.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
-                            </div>
-                         ))}
-                      </div>
-                   </div>
-                )}
-              </div>
+          <div className="flex items-center gap-4 relative">
+            <button className="text-gray-400 hover:text-[#8884d8] transition relative" onClick={() => setShowNotif(!showNotif)}>
+              <Bell size={20} />
+              {notifications.filter(n => !n.isRead).length > 0 && (
+                 <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-400 rounded-full border border-white"></span>
+              )}
+            </button>
+            <button className="text-gray-400 hover:text-red-500 transition" onClick={() => handleMenuClick({isLogout: true})}>
+              <LogOut size={20} />
+            </button>
+            <div className="w-9 h-9 flex flex-col items-center justify-center text-[#8884d8] bg-[#8884d8]/10 rounded-full border border-[#8884d8]/20 shadow-sm cursor-pointer">
+              <span className="text-sm font-bold">P</span>
+            </div>
 
-              <div className="flex items-center gap-3 pl-6 border-l border-gray-100">
-                <div className="text-right hidden sm:block">
-                  <p className="text-sm font-bold text-gray-800 leading-tight">Parent Account</p>
-                  <p className="text-[10px] text-gray-400 font-medium">Verified Profile</p>
-                </div>
-                <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold shadow-lg shadow-indigo-100">P</div>
-              </div>
-           </div>
-        </header>
+            {/* Notification Dropdown */}
+            {showNotif && (
+               <div className="absolute top-12 right-12 w-80 bg-white rounded-2xl shadow-xl border border-gray-100 p-4 z-50">
+                  <div className="flex justify-between items-center mb-3">
+                     <h3 className="font-bold text-gray-800 text-sm">Notifications</h3>
+                     <button onClick={markAllAsRead} className="text-[10px] text-[#8884d8] font-bold hover:underline cursor-pointer">Mark all read</button>
+                  </div>
+                  <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
+                     {notifications.length === 0 ? (
+                        <p className="text-xs text-gray-400 text-center py-4">No recent notifications</p>
+                     ) : notifications.map(alert => (
+                        <div key={alert._id} className={`p-3 rounded-xl border text-left ${alert.isRead ? 'bg-gray-50 border-gray-100 opacity-60' : 'bg-red-50 border-red-100'}`}>
+                           <p className={`text-xs font-bold ${alert.isRead ? 'text-gray-700' : 'text-red-800'}`}>{alert.title}</p>
+                           <p className="text-[10px] text-gray-500 mt-1 line-clamp-2">{alert.message}</p>
+                        </div>
+                     ))}
+                  </div>
+               </div>
+            )}
+          </div>
+        </div>
 
-        {/* CONTENT AREA */}
-        <main className="flex-1 overflow-y-auto p-4 md:p-8 space-y-8 bg-[#F8F9FD]/50">
+        {/* CONTENT */}
+        <div className="p-4 md:p-6 overflow-y-auto flex-1 pb-24 md:pb-6 bg-[#F4F7FB] md:bg-transparent scroll-smooth">
           {children}
-        </main>
+        </div>
+
+        {/* ── MOBILE BOTTOM NAVIGATION ── */}
+        <div className="md:hidden fixed bottom-0 left-0 w-full bg-white/90 backdrop-blur-lg shadow-[0_-4px_20px_rgba(0,0,0,0.05)] border-t border-gray-100 z-50 rounded-t-3xl">
+          <div className="flex justify-between items-center px-4 pt-3 pb-3 overflow-x-auto no-scrollbar gap-2 snap-x">
+            {menuItems.map((item, i) => {
+              const Icon = item.icon;
+              const isActive = currentPath === item.path;
+              
+              return (
+                <div 
+                  key={i} 
+                  onClick={() => handleMenuClick(item)} 
+                  className={`flex flex-col items-center gap-1 min-w-[70px] snap-center rounded-2xl transition-all duration-300 ${isActive ? "scale-105" : "scale-100 opacity-60 hover:opacity-100"}`}
+                >
+                  <div className={`p-2.5 rounded-xl transition-colors ${isActive ? "bg-[#8884d8]/20 text-[#7169c9]" : "text-gray-500"}`}>
+                    <Icon size={22} strokeWidth={isActive ? 2.5 : 2} />
+                  </div>
+                  <span className={`text-[10px] tracking-tight text-center ${isActive ? "text-[#7169c9] font-bold" : "text-gray-500 font-medium"}`}>{item.name.replace('Management', '').replace('Academic ', '')}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
       </div>
     </div>
   );

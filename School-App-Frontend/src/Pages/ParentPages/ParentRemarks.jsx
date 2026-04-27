@@ -75,11 +75,11 @@ export default function ParentRemarks() {
             onClick={() => handleChildChange(child._id)}
             className={`flex items-center gap-4 px-6 py-4 rounded-3xl transition-all border ${
               selectedChildId === child._id 
-              ? "bg-white border-indigo-600 text-indigo-700 shadow-xl shadow-indigo-100/50 scale-105" 
-              : "bg-gray-50 border-gray-100 text-gray-400 hover:bg-white hover:border-indigo-200"
+              ? "bg-white border-[#8884d8] text-[#7169c9] shadow-xl shadow-[#8884d8]/10 scale-105" 
+              : "bg-gray-50 border-gray-100 text-gray-400 hover:bg-white hover:border-[#8884d8]/30"
             }`}
           >
-            <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold ${selectedChildId === child._id ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-400'}`}>
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold ${selectedChildId === child._id ? 'bg-[#8884d8] text-white' : 'bg-gray-200 text-gray-400'}`}>
               {child.name[0]}
             </div>
             <p className="text-sm font-black tracking-tight">{child.name}</p>
@@ -91,7 +91,7 @@ export default function ParentRemarks() {
         
         {/* ── SUMMARY CARD ── */}
         <div className="lg:col-span-1 space-y-6">
-           <div className="bg-indigo-600 p-10 rounded-[2.5rem] shadow-2xl shadow-indigo-100 text-white relative overflow-hidden group">
+           <div className="bg-[#8884d8] p-10 rounded-[2.5rem] shadow-2xl shadow-[#8884d8]/10 text-white relative overflow-hidden group">
               <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform duration-700">
                  <Quote size={120} />
               </div>
@@ -100,13 +100,13 @@ export default function ParentRemarks() {
                     <MessageSquareQuote size={28} />
                  </div>
                  <h3 className="text-2xl font-bold leading-tight tracking-tight">Parental Engagement</h3>
-                 <p className="text-indigo-100 text-sm font-medium leading-relaxed">
+                 <p className="text-[#8884d8]/20 text-sm font-medium leading-relaxed">
                     Teacher remarks provide insight into behavior, participation, and academic focus. Always discuss these with your child.
                  </p>
                  <div className="pt-4">
                     <div className="flex -space-x-3">
-                       {[1,2,3].map(i => <div key={i} className="w-8 h-8 rounded-full border-2 border-indigo-600 bg-indigo-400 flex items-center justify-center text-[10px] font-bold">T</div>)}
-                       <div className="w-8 h-8 rounded-full border-2 border-indigo-600 bg-indigo-700 flex items-center justify-center text-[10px] font-bold">+5</div>
+                       {[1,2,3].map(i => <div key={i} className="w-8 h-8 rounded-full border-2 border-[#8884d8] bg-[#8884d8] flex items-center justify-center text-[10px] font-bold">T</div>)}
+                       <div className="w-8 h-8 rounded-full border-2 border-[#8884d8] bg-[#7169c9] flex items-center justify-center text-[10px] font-bold">+5</div>
                     </div>
                  </div>
               </div>
@@ -116,7 +116,7 @@ export default function ParentRemarks() {
               <h5 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Latest Update</h5>
               {remarks.length > 0 ? (
                 <div className="flex items-start gap-4">
-                   <div className="p-3 bg-indigo-50 text-indigo-600 rounded-xl">
+                   <div className="p-3 bg-[#8884d8]/10 text-[#8884d8] rounded-xl">
                       <Clock size={16} />
                    </div>
                    <div>
@@ -132,7 +132,7 @@ export default function ParentRemarks() {
         <div className="lg:col-span-2 space-y-6">
            {loading ? (
              <div className="bg-white rounded-[2.5rem] p-20 flex justify-center items-center shadow-xl border border-gray-50">
-                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600"></div>
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#8884d8]"></div>
              </div>
            ) : remarks.length === 0 ? (
              <div className="bg-white rounded-[2.5rem] p-20 text-center border-2 border-dashed border-gray-100 shadow-xl">
@@ -145,15 +145,15 @@ export default function ParentRemarks() {
            ) : (
              <div className="space-y-6">
                 {remarks.map((remark, i) => (
-                  <div key={i} className="bg-white rounded-[2.5rem] p-8 md:p-10 shadow-xl border border-gray-50 hover:border-indigo-100 transition-all duration-300 group">
+                  <div key={i} className="bg-white rounded-[2.5rem] p-8 md:p-10 shadow-xl border border-gray-50 hover:border-[#8884d8]/20 transition-all duration-300 group">
                      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8 pb-8 border-b border-gray-50">
                         <div className="flex items-center gap-4">
-                           <div className="w-14 h-14 rounded-2xl bg-gray-50 flex items-center justify-center text-indigo-600 shadow-inner group-hover:bg-indigo-600 group-hover:text-white transition-all duration-500">
+                           <div className="w-14 h-14 rounded-2xl bg-gray-50 flex items-center justify-center text-[#8884d8] shadow-inner group-hover:bg-[#8884d8] group-hover:text-white transition-all duration-500">
                               <User size={24} />
                            </div>
                            <div>
                               <p className="text-lg font-black text-gray-800 tracking-tight">{remark.teacher?.name}</p>
-                              <p className="text-[10px] font-black text-indigo-500 uppercase tracking-widest leading-none mt-1">Class Teacher / Subject Expert</p>
+                              <p className="text-[10px] font-black text-[#8884d8]/80 uppercase tracking-widest leading-none mt-1">Class Teacher / Subject Expert</p>
                            </div>
                         </div>
                         <div className="flex items-center gap-3 px-5 py-2.5 bg-gray-50 rounded-2xl border border-gray-100">
@@ -163,7 +163,7 @@ export default function ParentRemarks() {
                      </div>
 
                      <div className="relative pl-10">
-                        <div className="absolute top-0 left-0 text-indigo-100 group-hover:text-indigo-400 transition-colors duration-500">
+                        <div className="absolute top-0 left-0 text-[#8884d8]/20 group-hover:text-[#8884d8] transition-colors duration-500">
                            <Quote size={32} />
                         </div>
                         <p className="text-lg text-gray-600 font-medium italic leading-relaxed">
@@ -172,7 +172,7 @@ export default function ParentRemarks() {
                      </div>
 
                      <div className="mt-8 flex justify-end">
-                        <button className="flex items-center gap-2 text-[10px] font-black text-gray-400 hover:text-indigo-600 transition-colors tracking-widest uppercase">
+                        <button className="flex items-center gap-2 text-[10px] font-black text-gray-400 hover:text-[#8884d8] transition-colors tracking-widest uppercase">
                            Acknowledge Receipt <ArrowRight size={12} />
                         </button>
                      </div>

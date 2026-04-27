@@ -7,25 +7,31 @@ const messageSchema = new mongoose.Schema(
     sender: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
-      refPath: "senderModel",
+      ref: "User",
     },
 
-    senderModel: {
+    conversationType: {
       type: String,
+      enum: ["personal", "group"],
       required: true,
-      enum: ["student", "teacher", "parent"],
+      default: "personal",
     },
 
+    // For personal messages
     receiver: {
       type: mongoose.Schema.Types.ObjectId,
-      required: true,
-      refPath: "receiverModel",
+      ref: "User",
+      required: function () {
+        return this.conversationType === "personal";
+      },
     },
 
-    receiverModel: {
+    // For group messages (e.g., "Class-8th-A")
+    groupId: {
       type: String,
-      required: true,
-      enum: ["student", "teacher", "parent"],
+      required: function () {
+        return this.conversationType === "group";
+      },
     },
 
     message: {
@@ -46,7 +52,7 @@ const messageSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  },
+  }
 );
 
 module.exports = mongoose.model("message", messageSchema);
