@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Menu, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -19,6 +19,7 @@ export default function TeacherSidebar({ children }) {
   const [notifications, setNotifications] = useState([]);
   const [showNotif, setShowNotif] = useState(false);
   const navigate = useNavigate();
+  const isFirstFetch = useRef(true);
 
   // 🔹 Route Guard: Only teachers can access this layout
   useEffect(() => {
@@ -55,10 +56,11 @@ export default function TeacherSidebar({ children }) {
         const prevUnreadCount = prev.filter(n => !n.isRead).length;
         const currentUnreadCount = newNotifs.filter(n => !n.isRead).length;
         
-        if (currentUnreadCount > prevUnreadCount) {
+        if (!isFirstFetch.current && currentUnreadCount > prevUnreadCount) {
           const audio = new Audio("https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3");
           audio.play().catch(e => console.log("Audio play failed:", e));
         }
+        isFirstFetch.current = false;
         return newNotifs;
       });
     } catch (err) {

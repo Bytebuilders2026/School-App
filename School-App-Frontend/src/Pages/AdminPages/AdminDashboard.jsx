@@ -49,18 +49,17 @@ export default function AdminDashboard() {
     const token = localStorage.getItem("token");
     const headers = { Authorization: `Bearer ${token}` };
 
-    // Fetch attendance data
-    axios.get(`${API}/attendance/admin/dashboard`, { headers })
-      .then(res => setData(res.data.data))
-      .catch(err => console.error("Attendance fetch error:", err));
-
-    // Fetch performance/risk data
-    axios.get(`${API}/performance/admin/stats`, { headers })
-      .then(res => setPerfData(res.data.data))
-      .catch(err => console.error("Performance fetch error:", err));
-
-    // Stop loading after a short delay to allow both calls to resolve
-    setTimeout(() => setLoading(false), 1500);
+    Promise.all([
+      axios.get(`${API}/attendance/admin/dashboard`, { headers }),
+      axios.get(`${API}/performance/admin/stats`, { headers })
+    ]).then(([attRes, perfRes]) => {
+      setData(attRes.data.data);
+      setPerfData(perfRes.data.data);
+    }).catch(err => {
+      console.error("Dashboard fetch error:", err);
+    }).finally(() => {
+      setLoading(false);
+    });
   }, []);
 
   const todayName = new Date().toLocaleDateString("en-IN", {

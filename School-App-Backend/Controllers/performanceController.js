@@ -368,7 +368,7 @@ exports.getAdminStats = async (req, res) => {
       if (attPerc < 75 && marksAvg < 40) highRiskCount++;
     }
 
-    const recentAlerts = await Notification.find({ type: "performance_alert" })
+    const recentAlerts = await Notification.find({ type: "performance_alert", recipientModel: "student" })
       .sort({ createdAt: -1 }).limit(5).populate('recipient', 'name class section');
 
     const classWisePerformance = [
