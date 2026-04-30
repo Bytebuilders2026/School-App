@@ -1,9 +1,10 @@
+require("dotenv").config();
 const userModel = require("./Models/user.js");
 const mongoose = require("mongoose");
 
 const connectDb = async () => {
     try {
-        await mongoose.connect("mongodb+srv://bytebuilder2025_db_user:L4ocWYO4civ7AqzE@cluster0.pq1w5lx.mongodb.net/?appName=Cluster0")
+        await mongoose.connect(process.env.MONGO_URI)
             .then(() => console.log("✅ MongoDB Connected: schoolApp"))
             .catch((err) => console.error("❌ MongoDB Connection Error:", err.message));
     } catch (err) {

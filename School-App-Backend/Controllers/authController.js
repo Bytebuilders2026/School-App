@@ -4,7 +4,7 @@ const Teacher = require("../Models/TeacherSchema");
 const Parent = require("../Models/parentSchema");
 const jwt = require("jsonwebtoken");
 
-const JWT_SECRET = "SchoolAppSuperSecretKey"; // hardcoded for simple implementation without dotenv
+const JWT_SECRET = process.env.JWT_SECRET || "fallbackSecretKey";
 
 exports.login = async (req, res) => {
   try {
