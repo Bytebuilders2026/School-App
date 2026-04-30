@@ -22,7 +22,7 @@ const notificationSchema = new mongoose.Schema(
     },
     type: {
       type: String,
-      enum: ["performance_alert", "attendance_alert", "assignment", "result", "datesheet", "general"],
+      enum: ["performance_alert", "attendance_alert", "assignment", "result", "datesheet", "gate_pass", "general"],
       default: "general",
     },
     isRead: {

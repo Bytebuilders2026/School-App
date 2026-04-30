@@ -154,11 +154,11 @@ const AdminTimetableAdjustments = () => {
 
     return (
         <AdminSidebar>
-            <div className="p-0 animate-in fade-in duration-500 pb-12">
-                <header className="mb-6 md:mb-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+            <div className="p-0 animate-in fade-in duration-500 pb-4">
+                <header className="mb-4 flex flex-col md:flex-row justify-between items-start md:items-end gap-2">
                     <div>
-                        <h1 className="text-2xl md:text-4xl font-extrabold text-slate-900 tracking-tight">Substitution Hub</h1>
-                        <p className="text-slate-500 mt-1 md:mt-2 text-sm md:text-lg font-medium">Coordinate teaching staff for approved leave periods.</p>
+                        <h1 className="text-xl md:text-2xl font-extrabold text-slate-900 tracking-tight">Substitution Hub</h1>
+                        <p className="text-slate-500 mt-1 text-xs md:text-sm font-medium">Coordinate teaching staff for approved leave periods.</p>
                     </div>
                     {selectedLeave && (
                         <button 
@@ -173,111 +173,111 @@ const AdminTimetableAdjustments = () => {
                 {!selectedLeave ? (
                     <div className="space-y-6 md:space-y-8">
                         {/* Summary Cards */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-                            <div className="bg-white p-5 md:p-6 rounded-2xl md:rounded-3xl shadow-sm border border-slate-100 flex items-start justify-between">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex items-start justify-between">
                                 <div>
-                                    <p className="text-[10px] md:text-sm font-bold text-slate-400 uppercase tracking-wider">Pending Approvals</p>
-                                    <h3 className="text-2xl md:text-3xl font-black text-slate-800 mt-1">{leaves.filter(l => l.status === "Pending").length}</h3>
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Pending Approvals</p>
+                                    <h3 className="text-xl font-black text-slate-800 mt-1">{leaves.filter(l => l.status === "Pending").length}</h3>
                                 </div>
-                                <div className="bg-orange-100 p-2 md:p-3 rounded-xl md:rounded-2xl text-orange-600 shrink-0">
-                                    <Clock size={20} className="md:w-6 md:h-6" />
+                                <div className="bg-orange-100 p-2 rounded-lg text-orange-600 shrink-0">
+                                    <Clock size={18} />
                                 </div>
                             </div>
-                            <div className="bg-white p-5 md:p-6 rounded-2xl md:rounded-3xl shadow-sm border border-slate-100 flex items-start justify-between">
+                            <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex items-start justify-between">
                                 <div>
-                                    <p className="text-[10px] md:text-sm font-bold text-slate-400 uppercase tracking-wider">Active Substitutions</p>
-                                    <h3 className="text-2xl md:text-3xl font-black text-slate-800 mt-1">{leaves.filter(l => l.status === "Approved").length}</h3>
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Active Substitutions</p>
+                                    <h3 className="text-xl font-black text-slate-800 mt-1">{leaves.filter(l => l.status === "Approved").length}</h3>
                                 </div>
-                                <div className="bg-blue-100 p-2 md:p-3 rounded-xl md:rounded-2xl text-blue-600 shrink-0">
-                                    <Users size={20} className="md:w-6 md:h-6" />
+                                <div className="bg-blue-100 p-2 rounded-lg text-blue-600 shrink-0">
+                                    <Users size={18} />
                                 </div>
                             </div>
-                            <div className="bg-white p-5 md:p-6 rounded-2xl md:rounded-3xl shadow-sm border border-slate-100 flex items-start justify-between">
+                            <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex items-start justify-between">
                                 <div>
-                                    <p className="text-[10px] md:text-sm font-bold text-slate-400 uppercase tracking-wider">Completion Rate</p>
-                                    <h3 className="text-2xl md:text-3xl font-black text-slate-800 mt-1">94%</h3>
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Completion Rate</p>
+                                    <h3 className="text-xl font-black text-slate-800 mt-1">94%</h3>
                                 </div>
-                                <div className="bg-emerald-100 p-2 md:p-3 rounded-xl md:rounded-2xl text-emerald-600 shrink-0">
-                                    <CheckCircle2 size={20} className="md:w-6 md:h-6" />
+                                <div className="bg-emerald-100 p-2 rounded-lg text-emerald-600 shrink-0">
+                                    <CheckCircle2 size={18} />
                                 </div>
                             </div>
                         </div>
 
                         {/* Leave Table */}
-                        <div className="bg-white rounded-2xl md:rounded-[32px] shadow-xl border border-slate-200/60 overflow-hidden">
-                            <div className="p-5 md:p-8 border-b border-slate-100 bg-slate-50/30 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                                <h2 className="text-xl md:text-2xl font-black text-slate-800">Leave Applications</h2>
+                        <div className="bg-white rounded-2xl shadow-lg border border-slate-200/60 overflow-hidden">
+                            <div className="p-4 border-b border-slate-100 bg-slate-50/30 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                                <h2 className="text-lg font-black text-slate-800">Leave Applications</h2>
                                 <div className="relative w-full md:w-auto">
-                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
                                     <input 
                                         type="text" 
                                         placeholder="Search teacher..." 
-                                        className="pl-10 pr-6 py-2 md:py-2.5 bg-white border border-slate-200 rounded-full text-sm focus:ring-4 focus:ring-blue-50 focus:border-blue-400 transition-all w-full md:w-64"
+                                        className="pl-9 pr-4 py-1.5 bg-white border border-slate-200 rounded-full text-xs focus:ring-4 focus:ring-blue-50 focus:border-blue-400 transition-all w-full md:w-64"
                                     />
                                 </div>
                             </div>
                             <div className="overflow-x-auto">
-                                <table className="w-full">
-                                    <thead className="bg-slate-100/50 text-slate-500 uppercase text-[10px] md:text-[11px] font-black tracking-[0.15em] border-b border-slate-100">
+                                <table className="w-full text-xs">
+                                    <thead className="bg-slate-100/50 text-slate-500 uppercase text-[9px] font-black tracking-wider border-b border-slate-100">
                                         <tr>
-                                            <th className="px-6 md:px-8 py-5 md:py-6 text-left">Teacher Profile</th>
-                                            <th className="px-6 md:px-8 py-5 md:py-6 text-left">Period Range</th>
-                                            <th className="px-6 md:px-8 py-5 md:py-6 text-center">Duration</th>
-                                            <th className="px-6 md:px-8 py-5 md:py-6 text-left hidden lg:table-cell">Primary Reason</th>
-                                            <th className="px-6 md:px-8 py-5 md:py-6 text-center">Coordination</th>
-                                            <th className="px-6 md:px-8 py-5 md:py-6 text-right whitespace-nowrap">Actions</th>
+                                            <th className="px-6 py-3 text-left">Teacher Profile</th>
+                                            <th className="px-6 py-3 text-left">Period Range</th>
+                                            <th className="px-6 py-3 text-center">Duration</th>
+                                            <th className="px-6 py-3 text-left hidden lg:table-cell">Primary Reason</th>
+                                            <th className="px-6 py-3 text-center">Coordination</th>
+                                            <th className="px-6 py-3 text-right whitespace-nowrap">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-100">
                                         {leaves.filter(l => l.status === "Pending").map(leave => (
                                             <tr key={leave._id} className="hover:bg-blue-50/30 transition-colors group">
-                                                <td className="px-6 md:px-8 py-5 md:py-6">
-                                                    <div className="flex items-center gap-3 md:gap-4">
-                                                        <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-blue-600 text-white flex items-center justify-center font-black text-base md:text-lg shadow-lg shadow-blue-100 uppercase shrink-0">
+                                                <td className="px-6 py-3">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center font-black text-sm shadow-md uppercase shrink-0">
                                                             {leave.teacher?.name?.charAt(0)}
                                                         </div>
                                                         <div className="min-w-0">
-                                                            <div className="font-extrabold text-slate-900 text-sm md:text-base truncate">{leave.teacher?.name}</div>
-                                                            <div className="text-[10px] md:text-xs font-bold text-slate-400">ID: {leave.teacher?.employeeId}</div>
+                                                            <div className="font-extrabold text-slate-900 truncate">{leave.teacher?.name}</div>
+                                                            <div className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">ID: {leave.teacher?.employeeId}</div>
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <td className="px-6 md:px-8 py-5 md:py-6">
-                                                    <div className="flex items-center gap-2 text-slate-600 font-bold text-[10px] md:text-sm bg-white border border-slate-100 px-3 md:px-4 py-1.5 md:py-2 rounded-xl md:rounded-2xl w-fit shadow-sm whitespace-nowrap">
-                                                        {leave.startDate} <ChevronRight size={14} className="text-slate-300" /> {leave.endDate}
+                                                <td className="px-6 py-3">
+                                                    <div className="flex items-center gap-2 text-slate-600 font-bold text-[10px] bg-white border border-slate-100 px-3 py-1 rounded-lg w-fit shadow-sm whitespace-nowrap">
+                                                        {leave.startDate} <ChevronRight size={12} className="text-slate-300" /> {leave.endDate}
                                                     </div>
                                                 </td>
-                                                <td className="px-6 md:px-8 py-5 md:py-6 text-center">
-                                                    <span className="bg-slate-900 text-white px-2.5 md:px-3 py-1 md:py-1.5 rounded-lg md:rounded-xl text-[9px] md:text-[10px] font-black tracking-widest uppercase">
+                                                <td className="px-6 py-3 text-center">
+                                                    <span className="bg-slate-900 text-white px-2 py-0.5 rounded text-[9px] font-black tracking-widest uppercase">
                                                         {leave.totalDays} Days
                                                     </span>
                                                 </td>
-                                                <td className="px-6 md:px-8 py-5 md:py-6 max-w-xs hidden lg:table-cell">
-                                                    <p className="text-sm text-slate-500 font-medium line-clamp-1 italic">"{leave.reason}"</p>
+                                                <td className="px-6 py-3 max-w-xs hidden lg:table-cell">
+                                                    <p className="text-[11px] text-slate-500 font-medium line-clamp-1 italic">"{leave.reason}"</p>
                                                 </td>
-                                                <td className="px-6 md:px-8 py-5 md:py-6 text-center">
+                                                <td className="px-6 py-3 text-center">
                                                     <button 
                                                         onClick={() => handleReview(leave)}
-                                                        className="bg-blue-600 text-white px-4 md:px-6 py-2.5 md:py-3 rounded-xl md:rounded-2xl text-[9px] md:text-[10px] font-black tracking-widest uppercase hover:bg-blue-700 hover:shadow-xl hover:shadow-blue-200 transition-all"
+                                                        className="bg-blue-600 text-white px-4 py-1.5 rounded-lg text-[9px] font-black tracking-widest uppercase hover:bg-blue-700 transition-all"
                                                     >
                                                         Review
                                                     </button>
                                                 </td>
-                                                <td className="px-6 md:px-8 py-5 md:py-6 text-right">
+                                                <td className="px-6 py-3 text-right">
                                                     <div className="flex justify-end gap-2">
                                                         <button 
                                                             onClick={() => handleQuickApprove(leave)}
-                                                            className="p-2.5 md:p-3 bg-emerald-100 text-emerald-600 rounded-xl md:rounded-2xl hover:bg-emerald-200 transition-colors"
+                                                            className="p-1.5 bg-emerald-100 text-emerald-600 rounded-lg hover:bg-emerald-200 transition-colors"
                                                             title="Approve without substitutions"
                                                         >
-                                                            <CheckCircle2 size={16} className="md:w-[18px] md:h-[18px]" />
+                                                            <CheckCircle2 size={14} />
                                                         </button>
                                                         <button 
                                                             onClick={() => handleReject(leave)}
-                                                            className="p-2.5 md:p-3 bg-rose-100 text-rose-600 rounded-xl md:rounded-2xl hover:bg-rose-200 transition-colors"
+                                                            className="p-1.5 bg-rose-100 text-rose-600 rounded-lg hover:bg-rose-200 transition-colors"
                                                             title="Reject Application"
                                                         >
-                                                            <Clock size={16} className="rotate-45 md:w-[18px] md:h-[18px]" />
+                                                            <Clock size={14} className="rotate-45" />
                                                         </button>
                                                     </div>
                                                 </td>
@@ -285,18 +285,15 @@ const AdminTimetableAdjustments = () => {
                                         ))}
                                         {leaves.filter(l => l.status === "Pending").length === 0 && (
                                             <tr>
-                                                <td colSpan="6" className="p-16 md:p-32 text-center bg-slate-50/20">
+                                                <td colSpan="6" className="p-8 text-center bg-slate-50/20">
                                                     <div className="flex flex-col items-center">
-                                                        <div className="relative mb-6">
-                                                            <div className="w-20 h-20 md:w-28 md:h-28 bg-white rounded-full flex items-center justify-center shadow-xl shadow-slate-200 border border-slate-100">
-                                                                <CheckCircle2 size={40} className="text-emerald-400 md:w-12 md:h-12" />
-                                                            </div>
-                                                            <div className="absolute -top-2 -right-2 w-8 h-8 bg-blue-600 rounded-full border-4 border-white flex items-center justify-center shadow-lg">
-                                                                <div className="w-1 h-1 bg-white rounded-full animate-ping"></div>
+                                                        <div className="relative mb-4">
+                                                            <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg border border-slate-100">
+                                                                <CheckCircle2 size={24} className="text-emerald-400" />
                                                             </div>
                                                         </div>
-                                                        <h3 className="text-xl md:text-2xl font-black text-slate-800 tracking-tight">System Optimized</h3>
-                                                        <p className="text-slate-400 font-bold text-sm md:text-base mt-2 max-w-sm mx-auto leading-relaxed">
+                                                        <h3 className="text-lg font-black text-slate-800 tracking-tight">System Optimized</h3>
+                                                        <p className="text-slate-400 font-bold text-xs mt-1 max-w-sm mx-auto leading-relaxed">
                                                             All leave applications have been processed. Currently no pending requests in the queue.
                                                         </p>
                                                     </div>

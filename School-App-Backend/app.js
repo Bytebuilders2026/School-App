@@ -50,6 +50,7 @@ app.use("/api/notifications", require("./Routes/notificationRoute"));
 app.use("/api/doc-requests", require("./Routes/docRequestRoute"));
 app.use("/api/parent-portal", require("./Routes/parentPortalRoute"));
 app.use("/api/admin/fees", require("./Routes/adminFeeRoute"));
+app.use("/api/gatepass", require("./Routes/gatePassRoute"));
 app.use("/api/leave", require("./Routes/leaveRoute"));
 app.use("/api/reports", require("./Routes/reportRoute"));
 app.use("/api/messages", require("./Routes/messageRoute"));

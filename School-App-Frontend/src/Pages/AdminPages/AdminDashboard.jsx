@@ -1,14 +1,17 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import AdminSidebar from "../../Layouts/AdminSidebar";
-import { Users, GraduationCap, CheckCircle, XCircle, UserPlus, Calendar, ClipboardCheck } from "lucide-react";
+import { Users, GraduationCap, CheckCircle, XCircle, UserPlus, Calendar, ClipboardCheck, TrendingUp, DollarSign, Activity } from "lucide-react";
 import { API_BASE_URL } from "../../apiConfig";
+import { PieChart, Pie, Cell, Tooltip, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid, AreaChart, Area, ResponsiveContainer } from "recharts";
+
+const COLORS = ['#3b82f6', '#ec4899']; // Blue for Male, Pink for Female
 
 const API = API_BASE_URL;
 
 function StatCard({ icon, label, value, sub, color, bg }) {
   return (
-    <div className={`${bg} rounded-2xl p-6 border ${color} shadow-sm`}>
+    <div className={`${bg} rounded-2xl p-4 border ${color} shadow-sm`}>
       <div className="flex justify-between items-start mb-4">
         <div className="p-3 rounded-xl bg-white shadow-sm">
           {icon}
@@ -186,6 +189,102 @@ export default function AdminDashboard() {
             )}
           </div>
         </div>
+
+        {/* ── Graphs Section ── */}
+        {data?.graphs && (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+            {/* Gender Distribution */}
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="font-bold text-gray-700 text-sm">Student Demographics</h2>
+                <div className="p-2 bg-blue-50 text-blue-500 rounded-lg"><Users size={16} /></div>
+              </div>
+              <div className="h-64 w-full">
+                {data.graphs.genderData.every(d => d.value === 0) ? (
+                  <div className="flex h-full items-center justify-center text-gray-400 text-sm">No data available</div>
+                ) : (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={data.graphs.genderData}
+                        cx="50%" cy="50%"
+                        innerRadius={60} outerRadius={80}
+                        paddingAngle={5}
+                        dataKey="value"
+                      >
+                        {data.graphs.genderData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip 
+                        contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                      />
+                      <Legend verticalAlign="bottom" height={36} iconType="circle" />
+                    </PieChart>
+                  </ResponsiveContainer>
+                )}
+              </div>
+            </div>
+
+            {/* Attendance Trend */}
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="font-bold text-gray-700 text-sm">7-Day Attendance Trend</h2>
+                <div className="p-2 bg-green-50 text-green-500 rounded-lg"><Activity size={16} /></div>
+              </div>
+              <div className="h-64 w-full">
+                {data.graphs.attendanceChartData.length === 0 ? (
+                  <div className="flex h-full items-center justify-center text-gray-400 text-sm">No data available</div>
+                ) : (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={data.graphs.attendanceChartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                      <defs>
+                        <linearGradient id="colorPercent" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#4ade80" stopOpacity={0.8}/>
+                          <stop offset="95%" stopColor="#4ade80" stopOpacity={0}/>
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                      <XAxis dataKey="date" tick={{fontSize: 10, fill: '#9ca3af'}} axisLine={false} tickLine={false} />
+                      <YAxis tick={{fontSize: 10, fill: '#9ca3af'}} axisLine={false} tickLine={false} domain={[0, 100]} />
+                      <Tooltip 
+                        contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                      />
+                      <Area type="monotone" dataKey="percent" stroke="#4ade80" strokeWidth={3} fillOpacity={1} fill="url(#colorPercent)" />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                )}
+              </div>
+            </div>
+
+            {/* Fee Collections */}
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="font-bold text-gray-700 text-sm">Revenue (Last 6 Months)</h2>
+                <div className="p-2 bg-yellow-50 text-yellow-500 rounded-lg"><DollarSign size={16} /></div>
+              </div>
+              <div className="h-64 w-full">
+                {data.graphs.feeChartData.length === 0 ? (
+                  <div className="flex h-full items-center justify-center text-gray-400 text-sm">No data available</div>
+                ) : (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={data.graphs.feeChartData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                      <XAxis dataKey="month" tick={{fontSize: 10, fill: '#9ca3af'}} axisLine={false} tickLine={false} />
+                      <YAxis tick={{fontSize: 10, fill: '#9ca3af'}} axisLine={false} tickLine={false} tickFormatter={(value) => `₹${value}`} />
+                      <Tooltip 
+                        cursor={{ fill: '#f3f4f6' }}
+                        contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                        formatter={(value) => [`₹${value}`, 'Revenue']}
+                      />
+                      <Bar dataKey="amount" fill="#fbbf24" radius={[4, 4, 0, 0]} barSize={30} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* ── Bottom Row ── */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">

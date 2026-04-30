@@ -1,6 +1,7 @@
 const Attendance = require("../Models/attendenceSchema");
 const Student = require("../Models/studentSchema");
 const Teacher = require("../Models/TeacherSchema");
+const FeePayment = require("../Models/feePaymentSchema");
 
 const getTodayRange = () => {
   const today = new Date();
@@ -107,6 +108,15 @@ exports.getClassStudentsAttendance = async (req, res) => {
 exports.getAdminDashboard = async (req, res) => {
   try {
     const { today, tomorrow } = getTodayRange();
+    
+    // For Last 7 days attendance
+    const sevenDaysAgo = new Date(today);
+    sevenDaysAgo.setDate(today.getDate() - 6);
+
+    // For Last 6 months fees
+    const sixMonthsAgo = new Date(today);
+    sixMonthsAgo.setMonth(today.getMonth() - 5);
+    sixMonthsAgo.setDate(1);
 
     const [
       totalStudents,
@@ -116,6 +126,9 @@ exports.getAdminDashboard = async (req, res) => {
       classWise,
       recentStudents,
       recentTeachers,
+      genderStatsRaw,
+      attendanceAnalysis,
+      feesGraphData
     ] = await Promise.all([
       Student.countDocuments({ isActive: { $ne: false } }),
       Teacher.countDocuments({ isActive: { $ne: false } }),
@@ -129,10 +142,65 @@ exports.getAdminDashboard = async (req, res) => {
       ]),
       Student.find({ isActive: { $ne: false } }).sort({ createdAt: -1 }).limit(5).select("name rollNumber class section createdAt"),
       Teacher.find({ isActive: { $ne: false } }).sort({ createdAt: -1 }).limit(5).select("name employeeId subjects"),
+      
+      // Graph 1: Gender
+      Student.aggregate([
+        { $match: { isActive: { $ne: false } } },
+        { $group: { _id: { $ifNull: ["$gender", "Other"] }, count: { $sum: 1 } } }
+      ]),
+      
+      // Graph 2: 7 Days Attendance Analysis
+      Attendance.aggregate([
+        { $match: { date: { $gte: sevenDaysAgo, $lt: tomorrow } } },
+        { $group: { 
+            _id: { $dateToString: { format: "%Y-%m-%d", date: "$date" } },
+            present: { $sum: { $cond: [{ $eq: ["$status", "present"] }, 1, 0] } },
+            total: { $sum: 1 }
+        }},
+        { $sort: { "_id": 1 } }
+      ]),
+
+      // Graph 3: 6 Months Fee Collections
+      FeePayment.aggregate([
+        { $match: { paymentDate: { $gte: sixMonthsAgo } } },
+        { $group: { 
+            _id: { $dateToString: { format: "%Y-%m", date: "$paymentDate" } },
+            amount: { $sum: "$amount" }
+        }},
+        { $sort: { "_id": 1 } }
+      ])
     ]);
 
     const attendancePercent = totalStudents > 0 ? ((presentToday / totalStudents) * 100).toFixed(1) : 0;
     const absentToday = totalMarkedToday - presentToday;
+
+    // Format Gender Data
+    const genderData = [
+      { name: "Male", value: 0 },
+      { name: "Female", value: 0 }
+    ];
+    let maleCount = 0; let femaleCount = 0;
+    genderStatsRaw.forEach(g => {
+      if(g._id === 'Male') { maleCount += g.count; genderData[0].value = g.count; }
+      else if(g._id === 'Female') { femaleCount += g.count; genderData[1].value = g.count; }
+    });
+    // In case there is no data at all, provide a fallback or ensure zero values
+
+    // Format Attendance Data
+    const attendanceChartData = attendanceAnalysis.map(item => ({
+      date: item._id,
+      percent: item.total > 0 ? Math.round((item.present / item.total) * 100) : 0
+    }));
+
+    // Format Fee Data
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const feeChartData = feesGraphData.map(item => {
+      const [year, month] = item._id.split('-');
+      return {
+        month: monthNames[parseInt(month, 10) - 1] + " '" + year.slice(2),
+        amount: item.amount
+      }
+    });
 
     res.json({
       success: true,
@@ -146,6 +214,11 @@ exports.getAdminDashboard = async (req, res) => {
         classWise,
         recentStudents,
         recentTeachers,
+        graphs: {
+          genderData,
+          attendanceChartData,
+          feeChartData
+        }
       },
     });
   } catch (err) {

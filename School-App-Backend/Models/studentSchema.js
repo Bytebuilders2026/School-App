@@ -59,6 +59,12 @@ const studentSchema = new mongoose.Schema(
       required: true,
     },
 
+    gender: {
+      type: String,
+      enum: ["Male", "Female", "Other"],
+      default: "Other"
+    },
+
     // 🔹 Relations
     parent: {
       type: mongoose.Schema.Types.ObjectId,

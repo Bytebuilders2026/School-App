@@ -22,8 +22,12 @@ import AdminTeacherTimetable from "./Pages/AdminPages/AdminTeacherTimetable";
 import AdminAnnouncements from "./Pages/AdminPages/AdminAnnouncements";
 import AdminResults from "./Pages/AdminPages/AdminResults";
 import AdminReports from "./Pages/AdminPages/AdminReports";
+import AdminGatePass from "./Pages/AdminPages/AdminGatePass";
 import AdminSidebar from "./Layouts/AdminSidebar";
 
+// Public Pages
+import GatePassRequest from "./Pages/PublicPages/GatePassRequest";
+import GatePassAction from "./Pages/PublicPages/GatePassAction";
 
 // Teacher Pages
 import TeacherMarks from "./Pages/TeacherPages/TeacherMarks";
@@ -58,12 +62,17 @@ import ParentRemarks from "./Pages/ParentPages/ParentRemarks";
 import ParentFees from "./Pages/ParentPages/ParentFees";
 import ParentSidebar from "./Layouts/ParentSidebar";
 import ParentAnnouncements from "./Pages/ParentPages/ParentAnnouncements";
+import ParentGatePass from "./Pages/ParentPages/ParentGatePass";
 
 
 function App() {
   return (
     <Router>
       <Routes>
+        {/* Public / Gate Pass */}
+        <Route path="/gate-pass" element={<GatePassRequest />} />
+        <Route path="/gate-pass/action/:token" element={<GatePassAction />} />
+
         {/* Login */}
         <Route path="/" element={<Login />} />
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
@@ -83,6 +92,7 @@ function App() {
         <Route path="/admin/announcements" element={<AdminAnnouncements />} />
         <Route path="/admin/results" element={<AdminResults />} />
         <Route path="/admin/reports" element={<AdminReports />} />
+        <Route path="/admin/gatepass" element={<AdminGatePass />} />
 
 
         {/* Teacher Routes */}
@@ -121,6 +131,7 @@ function App() {
         <Route path="/parent/remarks" element={<ParentSidebar><ParentRemarks /></ParentSidebar>} />
         <Route path="/parent/fees" element={<ParentSidebar><ParentFees /></ParentSidebar>} />
         <Route path="/parent/announcements" element={<ParentSidebar><ParentAnnouncements /></ParentSidebar>} />
+        <Route path="/parent/gatepass" element={<ParentSidebar><ParentGatePass /></ParentSidebar>} />
 
       </Routes>
     </Router>

@@ -37,87 +37,86 @@ export default function ParentDashboard() {
 
   if (loading) return (
     <div className="flex flex-col items-center justify-center h-full">
-      <div className="w-12 h-12 border-4 border-[#8884d8] border-t-transparent rounded-full animate-spin"></div>
-      <p className="mt-4 text-gray-500 font-medium animate-pulse">Loading parent portal...</p>
+      <div className="w-10 h-10 border-4 border-[#8884d8] border-t-transparent rounded-full animate-spin"></div>
+      <p className="mt-4 text-slate-500 text-xs font-bold uppercase tracking-widest animate-pulse">Initializing Portal...</p>
     </div>
   );
 
   return (
-    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-5 duration-700">
-      {/* ── WELCOME HEADER ── */}
-      <div className="bg-gradient-to-r from-[#8884d8] to-purple-600 p-10 rounded-[2.5rem] text-white shadow-2xl relative overflow-hidden group">
-         <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl group-hover:bg-white/20 transition-all duration-700"></div>
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-5 duration-700 max-w-6xl mx-auto">
+      {/* ── WELCOME HEADER (Compact & Dark-ish Gradient) ── */}
+      <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950 p-8 rounded-[2rem] text-white shadow-xl relative overflow-hidden group">
+         <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl group-hover:bg-white/10 transition-all duration-700"></div>
          <div className="relative z-10 space-y-2">
-            <h2 className="text-3xl font-bold tracking-tight">Welcome back, {data?.parentName}!</h2>
-            <p className="text-white/80 font-medium">Keep track of your children's progress and manage school activities here.</p>
+            <h2 className="text-2xl font-black tracking-tight">Welcome, {data?.parentName}!</h2>
+            <p className="text-slate-400 text-sm font-medium">Monitoring academic excellence for your family.</p>
          </div>
       </div>
 
-      {/* ── CHILDREN LIST ── */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+      {/* ── CHILDREN LIST (Smaller Boxes) ── */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {data?.children.map((child, i) => (
-          <div key={i} className="bg-white rounded-[2rem] p-8 shadow-xl shadow-gray-100/50 border border-gray-50 flex flex-col md:flex-row gap-8 hover:border-[#8884d8]/20 transition-all duration-300 group">
-             {/* LEFT: Profile & Basic Info */}
-             <div className="flex flex-col items-center gap-4 text-center">
-                <div className="w-24 h-24 bg-[#8884d8]/10 rounded-[2rem] flex items-center justify-center text-[#8884d8] text-3xl font-bold shadow-inner border border-[#8884d8]/20">
+          <div key={i} className="bg-white rounded-[1.5rem] p-6 shadow-lg shadow-slate-200/50 border border-slate-100 flex flex-col sm:flex-row gap-6 hover:border-[#8884d8]/30 transition-all duration-300 group">
+             {/* LEFT: Profile (Smaller) */}
+             <div className="flex flex-col items-center gap-3 text-center">
+                <div className="w-16 h-16 bg-slate-900 rounded-2xl flex items-center justify-center text-white text-xl font-black shadow-inner">
                   {child.name[0]}
                 </div>
-                <div className="space-y-1">
-                   <h3 className="text-xl font-bold text-gray-800">{child.name}</h3>
-                   <p className="text-xs font-bold text-[#8884d8]/80 uppercase tracking-widest">{child.class} - {child.section}</p>
+                <div className="space-y-0.5">
+                   <h3 className="text-sm font-black text-slate-800">{child.name}</h3>
+                   <p className="text-[10px] font-bold text-indigo-500 uppercase tracking-widest">{child.class} - {child.section}</p>
                 </div>
                 <button 
-                  className="mt-2 w-full px-4 py-2 bg-gray-50 hover:bg-[#8884d8] hover:text-white text-gray-500 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2 group/btn"
+                  onClick={() => navigate("/parent/children")}
+                  className="mt-1 w-full px-3 py-1.5 bg-slate-50 hover:bg-slate-900 hover:text-white text-slate-500 text-[10px] font-black rounded-lg transition-all flex items-center justify-center gap-1.5 group/btn"
                 >
-                  Full Profile <ArrowUpRight size={14} className="group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
+                  Profile <ArrowUpRight size={12} />
                 </button>
              </div>
 
-             {/* RIGHT: Stats Grid */}
-             <div className="flex-1 grid grid-cols-2 gap-4">
-                <div className="p-5 bg-emerald-50/50 rounded-3xl border border-emerald-100/30 space-y-2">
+             {/* RIGHT: Stats Grid (Compact) */}
+             <div className="flex-1 grid grid-cols-2 gap-3">
+                <div className="p-4 bg-emerald-50/50 rounded-2xl border border-emerald-100/30 space-y-1.5">
                    <div className="flex items-center justify-between">
-                      <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Attendance</p>
-                      <CheckCircle2 size={16} className="text-emerald-500" />
+                      <p className="text-[8px] font-black text-emerald-600 uppercase tracking-wider">Attendance</p>
+                      <CheckCircle2 size={12} className="text-emerald-500" />
                    </div>
-                   <p className="text-2xl font-black text-emerald-700">{child.attendancePercentage}%</p>
+                   <p className="text-lg font-black text-emerald-700">{child.attendancePercentage}%</p>
                    <div className="w-full h-1 bg-emerald-100 rounded-full overflow-hidden">
                       <div className="h-full bg-emerald-500" style={{ width: `${child.attendancePercentage}%` }}></div>
                    </div>
                 </div>
 
-                <div className={`p-5 rounded-3xl border space-y-2 ${child.isFeeOverdue ? 'bg-rose-50 border-rose-100' : 'bg-[#8884d8]/10/50 border-[#8884d8]/20/30'}`}>
+                <div className={`p-4 rounded-2xl border space-y-1.5 ${child.isFeeOverdue ? 'bg-rose-50 border-rose-100' : 'bg-indigo-50 border-indigo-100'}`}>
                    <div className="flex items-center justify-between">
-                      <p className={`text-[10px] font-bold uppercase tracking-wider ${child.isFeeOverdue ? 'text-rose-600' : 'text-[#8884d8]'}`}>Fee Status</p>
-                      {child.isFeeOverdue ? <AlertCircle size={16} className="text-rose-500" /> : <Wallet size={16} className="text-[#8884d8]/80" />}
+                      <p className={`text-[8px] font-black uppercase tracking-wider ${child.isFeeOverdue ? 'text-rose-600' : 'text-indigo-600'}`}>Fee Status</p>
+                      {child.isFeeOverdue ? <AlertCircle size={12} className="text-rose-500" /> : <Wallet size={12} className="text-indigo-500" />}
                    </div>
-                   <p className={`text-xl font-black uppercase ${child.isFeeOverdue ? 'text-rose-700' : 'text-[#7169c9]'}`}>{child.feeStatus}</p>
-                   <p className={`text-[9px] font-medium italic ${child.isFeeOverdue ? 'text-rose-400' : 'text-[#8884d8]'}`}>
-                      {child.isFeeOverdue ? "Fine accumulating" : "Paid for this month"}
+                   <p className={`text-sm font-black uppercase ${child.isFeeOverdue ? 'text-rose-700' : 'text-indigo-700'}`}>{child.feeStatus}</p>
+                   <p className={`text-[8px] font-bold italic ${child.isFeeOverdue ? 'text-rose-400' : 'text-indigo-400'}`}>
+                      {child.isFeeOverdue ? "Overdue" : "Up to date"}
                    </p>
                 </div>
 
-                <div className="col-span-2 p-5 bg-gray-50/50 rounded-3xl border border-gray-100 space-y-3">
+                <div className="col-span-2 p-4 bg-slate-50/80 rounded-2xl border border-slate-100 space-y-2">
                    <div className="flex items-center justify-between">
-                      <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Teacher's Last Remark</p>
-                      <MessageSquareQuote size={16} className="text-gray-400" />
+                      <p className="text-[8px] font-black text-slate-400 uppercase tracking-wider">Latest Remark</p>
+                      <MessageSquareQuote size={12} className="text-slate-300" />
                    </div>
-                   <p className="text-sm text-gray-600 font-medium italic line-clamp-2">"{child.lastRemark}"</p>
+                   <p className="text-[11px] text-slate-600 font-medium italic line-clamp-2 leading-relaxed">"{child.lastRemark}"</p>
                 </div>
              </div>
           </div>
         ))}
-
-        {data?.children.length === 0 && (
-          <div className="col-span-full bg-white rounded-[2.5rem] p-20 text-center border-2 border-dashed border-gray-100">
-             <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6 text-gray-300">
-                <Users size={40} />
-             </div>
-             <h3 className="text-xl font-bold text-gray-800">No children linked</h3>
-             <p className="text-gray-500 mt-2 max-w-sm mx-auto">Please contact the admin office to link your children's profiles to your parent account.</p>
-          </div>
-        )}
       </div>
+
+      {data?.children.length === 0 && (
+        <div className="col-span-full bg-slate-50 rounded-[2rem] p-16 text-center border-2 border-dashed border-slate-200">
+           <Users size={32} className="mx-auto mb-4 text-slate-300" />
+           <h3 className="text-lg font-black text-slate-800 tracking-tight">No children linked</h3>
+           <p className="text-slate-500 text-xs mt-1">Contact admin to link your children.</p>
+        </div>
+      )}
     </div>
   );
 }
