@@ -24,14 +24,12 @@ exports.login = async (req, res) => {
       if (studentProfile) {
         user = studentProfile.user;
       }
-      console.log("FOUND USER:", user);
     } else if (role === "parent") {
       // Parents might use phone number to log in (as per frontend)
       const parentProfile = await Parent.findOne({ phone: identifier }).populate("user");
       if (parentProfile) {
         user = parentProfile.user;
       } 
-      console.log("FOUND USER:", user);
       else {
         // Fallback to email
         user = await User.findOne({ email: identifier });
