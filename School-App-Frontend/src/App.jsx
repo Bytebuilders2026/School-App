@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 
 import Login from "./Pages/Login";
 import AdminDashboard from "./Pages/AdminPages/AdminDashboard";
@@ -67,8 +67,7 @@ import ParentGatePass from "./Pages/ParentPages/ParentGatePass";
 
 function App() {
   return (
-    <Router>
-      <Routes>
+    <Routes>
         {/* Public / Gate Pass */}
         <Route path="/gate-pass" element={<GatePassRequest />} />
         <Route path="/gate-pass/action/:token" element={<GatePassAction />} />
@@ -134,7 +133,6 @@ function App() {
         <Route path="/parent/gatepass" element={<ParentSidebar><ParentGatePass /></ParentSidebar>} />
 
       </Routes>
-    </Router>
   );
 }
 
