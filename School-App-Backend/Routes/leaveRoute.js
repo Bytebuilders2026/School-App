@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const leaveController = require("../Controllers/leaveController");
-const protect = require("../middleware/authMiddleware"); 
+const protect = require("../Middleware/authMiddleware"); 
 
 router.post("/student/request", protect, leaveController.requestStudentLeave);
 router.post("/teacher/request", protect, leaveController.requestTeacherLeave);
