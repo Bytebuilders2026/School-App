@@ -32,7 +32,7 @@ export default function LoginForm({ role, setRole }) {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const res = await axios.post(`${API_BASE_URL}/api/login`, {
+      const res = await axios.post(`${API_BASE_URL}/auth/login`, {
         role,
         identifier,
         password,
