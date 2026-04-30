@@ -9,6 +9,7 @@ const JWT_SECRET = process.env.JWT_SECRET || "fallbackSecretKey";
 exports.login = async (req, res) => {
   try {
     const { identifier, password, role } = req.body;
+    console.log("LOGIN INPUT:", identifier, password, role);
 
     let user = null;
 
@@ -23,12 +24,15 @@ exports.login = async (req, res) => {
       if (studentProfile) {
         user = studentProfile.user;
       }
+      console.log("FOUND USER:", user);
     } else if (role === "parent") {
       // Parents might use phone number to log in (as per frontend)
       const parentProfile = await Parent.findOne({ phone: identifier }).populate("user");
       if (parentProfile) {
         user = parentProfile.user;
-      } else {
+      } 
+      console.log("FOUND USER:", user);
+      else {
         // Fallback to email
         user = await User.findOne({ email: identifier });
       }
