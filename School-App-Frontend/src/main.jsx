@@ -29,7 +29,7 @@ axios.interceptors.response.use(
       window.location.href = "/";
     }
     return Promise.reject(error);
-  }
+  }  
 );
 
 createRoot(document.getElementById("root")).render(
