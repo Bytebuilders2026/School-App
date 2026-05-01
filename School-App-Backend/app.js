@@ -32,6 +32,14 @@ app.use((req, res, next) => {
   next();
 });
 
+// Default root route to prevent 404/403 on base URL
+app.get("/", (req, res) => {
+  res.status(200).json({ 
+    success: true, 
+    message: "Welcome to School App Backend API. Server is running smoothly!" 
+  });
+});
+
 app.use("/api/auth", require("./Routes/authRoute"));
 app.use("/api/students", require("./Routes/adminStudentRoute"));
 app.use("/api/admin/teachers", teacherRoutes);
