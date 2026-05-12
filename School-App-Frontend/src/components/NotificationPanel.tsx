@@ -27,7 +27,7 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({ isOpen, on
 
   // Filter notifications for the current user
   const userNotifications = notifications.filter(n => {
-    const isForRole = n.role.includes(user.role);
+    const isForRole = Array.isArray(n.role) ? n.role.includes(user.role) : false;
     const isForUser = !n.userId || n.userId === user.id;
     return isForRole && isForUser;
   });

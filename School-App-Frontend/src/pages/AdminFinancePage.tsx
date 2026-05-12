@@ -162,7 +162,7 @@ export const AdminFinancePage: React.FC<{ onBack: () => void }> = ({ onBack }) =
   const renderStudentFeesList = () => {
     const classStudents = students.filter(s => s.class === selectedClass);
     const filtered = classStudents.filter(s => {
-      const matchSearch = s.name.toLowerCase().includes(searchTerm.toLowerCase()) || s.rollNo.includes(searchTerm);
+      const matchSearch = (s.name || '').toLowerCase().includes(searchTerm.toLowerCase()) || (s.rollNo || '').toString().includes(searchTerm);
       const fee = fees.find(f => f.studentId === s.id);
       const matchStatus = statusFilter === 'ALL' || (fee && fee.status === statusFilter);
       return matchSearch && matchStatus;

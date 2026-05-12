@@ -30,7 +30,7 @@ export const AdminClassListPage: React.FC<AdminClassListPageProps> = ({ onBack, 
   // Extract unique classes and calculate stats
   const classStats = students.reduce((acc, student) => {
     const rawClass = student.class || 'Unassigned';
-    const [baseClass] = rawClass.split(' ');
+    const [baseClass] = (rawClass || '').split(' ');
 
     if (!acc[baseClass]) {
       acc[baseClass] = {

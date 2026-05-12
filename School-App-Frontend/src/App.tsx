@@ -79,7 +79,7 @@ const AppContent: React.FC = () => {
     ]
   };
 
-  const isAuthorized = PERMISSIONS[user.role].includes(currentPage);
+  const isAuthorized = PERMISSIONS[user.role]?.includes(currentPage) ?? false;
 
   const renderPage = () => {
     if (!isAuthorized) {

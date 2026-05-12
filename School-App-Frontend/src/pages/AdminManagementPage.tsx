@@ -56,8 +56,8 @@ export const AdminManagementPage: React.FC<{ onBack: () => void; type: 'STUDENTS
 
   const rawList = type === 'STUDENTS' ? students : teachers;
   const filteredList = rawList.filter(item => {
-    const nameMatch = item.name.toLowerCase().includes(searchQuery.toLowerCase());
-    const emailMatch = item.email?.toLowerCase().includes(searchQuery.toLowerCase());
+    const nameMatch = (item.name || '').toLowerCase().includes(searchQuery.toLowerCase());
+    const emailMatch = (item.email || '').toLowerCase().includes(searchQuery.toLowerCase());
     const idMatch = (item.rollNo || item.employeeId || item.rollNumber || '').toLowerCase().includes(searchQuery.toLowerCase());
     
     const matchesSearch = nameMatch || emailMatch || idMatch;
