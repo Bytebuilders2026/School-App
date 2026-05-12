@@ -1,0 +1,27 @@
+const express = require("express");
+const router = express.Router();
+const authMiddleware = require("../Middleware/authMiddleware");
+
+const {
+  addStudent,
+  getTotalStudents,
+  searchStudent,
+  getStudentsByClass,
+  getStudentAttendance,
+  updateStudent,
+  deleteStudent
+} = require("../Controllers/adminStudentController");
+
+router.post("/add", authMiddleware, addStudent);
+router.get("/total", authMiddleware, getTotalStudents);
+router.get("/search", authMiddleware, searchStudent);
+router.get("/by-class", authMiddleware, getStudentsByClass);
+router.get("/attendance/:studentId", authMiddleware, getStudentAttendance);
+router.put("/update/:id", authMiddleware, updateStudent);
+router.delete("/delete/:id", authMiddleware, deleteStudent);
+
+// 🚨 EMERGENCY BROADCAST PATH (NO AUTH FOR TESTING)
+const { sendAnnouncement } = require("../Controllers/notificationController");
+router.post("/broadcast", sendAnnouncement);
+
+module.exports = router;
